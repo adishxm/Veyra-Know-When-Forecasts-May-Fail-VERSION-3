@@ -87,11 +87,27 @@ if exist "models\v3\lightgbm_v3_challenger.joblib" (
 echo  [OK] All pre-flight checks passed.
 echo.
 
+:: --- Pre-flight Cleanup: Release lingering ports from prior sessions ---
+echo  [*] Releasing any lingering development server ports...
+powershell -NoProfile -Command "$ports = @(8000, 8001, 5173); foreach ($p in $ports) { $conn = Get-NetTCPConnection -LocalPort $p -ErrorAction SilentlyContinue; if ($conn) { foreach ($c in $conn) { Stop-Process -Id $c.OwningProcess -Force -ErrorAction SilentlyContinue } } }" >nul 2>&1
+
+:: --- Determine Available Backend Port (Automatic WinNAT / WinError 10013 Fallback) ---
+set BACKEND_PORT=8000
+python -c "import socket, sys; s = socket.socket(); (lambda: (s.bind(('127.0.0.1', 8000)), s.close(), sys.exit(0)) if True else None)();" >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo  [*] Notice: Port 8000 is occupied or restricted by Windows permissions.
+    echo  [*] Automatically routing backend to fallback port 8001...
+    set BACKEND_PORT=8001
+)
+
+:: Configure frontend to target the active backend port dynamically
+echo VITE_API_BASE_URL=http://127.0.0.1:%BACKEND_PORT%> "frontend\.env.local"
+
 :: --- Start Backend Server ---
 echo  ===================================================================
-echo   Starting Veyra Sentinel Backend [port 8000]...
+echo   Starting Veyra Sentinel Backend [port %BACKEND_PORT%]...
 echo  ===================================================================
-start "HEXARK-Backend" cmd /k "title HEXARK-Backend && cd /d "%~dp0" && python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload"
+start "HEXARK-Backend" cmd /k "title HEXARK-Backend && cd /d "%~dp0" && python -m uvicorn backend.app.main:app --host 127.0.0.1 --port %BACKEND_PORT% --reload"
 
 echo  [*] Waiting for backend to initialize...
 ping 127.0.0.1 -n 4 >nul
@@ -117,6 +133,9 @@ echo.
 echo  +-----------------------------------------------------------------+
 echo  ^|                                                                 ^|
 echo  ^|   VEYRA SENTINEL is now running!                                ^|
+echo  ^|   Backend:  http://127.0.0.1:%BACKEND_PORT% (API Docs: /docs)          ^|
+echo  ^|   Frontend: http://127.0.0.1:5173/Veyra-Know-When-Forecasts-May-Fail/  ^|
+echo  ^|                                                                 ^|
 echo  ^|   Press any key in this window to stop all servers...           ^|
 echo  ^|                                                                 ^|
 echo  +-----------------------------------------------------------------+
@@ -130,7 +149,8 @@ taskkill /FI "WINDOWTITLE eq HEXARK-Backend*" /T /F >nul 2>&1
 taskkill /FI "WINDOWTITLE eq HEXARK-Frontend*" /T /F >nul 2>&1
 taskkill /FI "WINDOWTITLE eq HEXARK Backend*" /T /F >nul 2>&1
 taskkill /FI "WINDOWTITLE eq HEXARK Frontend*" /T /F >nul 2>&1
-powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8000,5173 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }" >nul 2>&1
+powershell -NoProfile -Command "Get-NetTCPConnection -LocalPort 8000,8001,5173 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }" >nul 2>&1
+if exist "frontend\.env.local" del /f /q "frontend\.env.local" >nul 2>&1
 echo  [OK] All servers and spawned terminals closed.
 echo.
 ping 127.0.0.1 -n 2 >nul
