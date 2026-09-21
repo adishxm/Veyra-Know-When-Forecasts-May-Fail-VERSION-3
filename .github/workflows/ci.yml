@@ -1,0 +1,104 @@
+name: Veyra Round-2 Scientific & Release Gate CI
+
+on:
+  push:
+    branches: [ main, "integration/*" ]
+  pull_request:
+    branches: [ main, "integration/*" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    name: Backend Tests & Safety Gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest httpx
+
+      - name: Run Backend Pytest Suite
+        run: |
+          pytest -q backend/tests/
+
+  artifact-verification:
+    name: Release Manifest & Model Integrity (Gates G1/G3)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Core Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install joblib scikit-learn lightgbm numpy
+
+      - name: Verify Frozen Incumbent Artifacts
+        run: |
+          python scripts/verify_artifacts.py
+
+  frontend-validation:
+    name: Frontend Test Suite & Production Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run Frontend Vitest Suite
+        working-directory: ./frontend
+        run: npm test
+
+      - name: Build Frontend Production Bundle
+        working-directory: ./frontend
+        run: npm run build
+
+  release-gates:
+    name: Compulsory Scientific Release Gates
+    needs: [backend-tests, artifact-verification, frontend-validation]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Gate Runner Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install joblib scikit-learn lightgbm numpy pytest
+
+      - name: Run All Release Gates (G1-G17)
+        run: |
+          python scripts/run_release_gates.py --require-all
