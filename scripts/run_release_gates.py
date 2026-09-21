@@ -48,7 +48,7 @@ def check_replay_separation():
 def check_security_and_operations():
     print("[GATE G15] Checking security, secret hygiene & operations...")
     # Check for potential exposed API keys or secrets in repo_b
-    code, out, _ = run('git grep -i -E "sk_live|private_key|aws_secret" -- ":!*.md" ":!*.json"', cwd=REPO_B)
+    code, out, _ = run('git grep -i -E "sk_live|private_key|aws_secret" -- ":!*.md" ":!*.json" ":!scripts/run_release_gates.py"', cwd=REPO_B)
     if code == 0 and out.strip():
         print(f"  FAILED: Found potential hardcoded secret:\n{out}")
         return False
