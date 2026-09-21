@@ -13,6 +13,10 @@ import { AnalogExplorer } from './components/AnalogExplorer';
 import { ResearchMetrics } from './components/ResearchMetrics';
 import { ProvenanceDrawer } from './components/ProvenanceDrawer';
 import { BaselineToggle } from './components/BaselineToggle';
+import { SpatialReliabilityPanel } from './components/SpatialReliabilityPanel';
+import { MultiLocationPanel } from './components/MultiLocationPanel';
+import { ForecastDisagreementPanel } from './components/ForecastDisagreementPanel';
+import { ForecastRevisionPanel } from './components/ForecastRevisionPanel';
 import { apiClient } from './api/client';
 import { BENCHMARK_LOCATIONS } from './data/locations';
 import {
@@ -39,6 +43,16 @@ export const App: React.FC = () => {
   // Dashboard Intelligence Response State
   const [dashboardData, setDashboardData] = useState<DashboardIntelligenceResponse | null>(null);
   const [selectedLeadHours, setSelectedLeadHours] = useState<number | null>(null);
+
+  // Day 29 Disagreement Panel State
+  const [disagreementLocation, setDisagreementLocation] = useState<string>('Kolkata');
+  const [disagreementVariable, setDisagreementVariable] = useState<string>('temperature_2m');
+  const [disagreementLeadHours, setDisagreementLeadHours] = useState<number>(24);
+
+  // Day 30 Revision Panel State
+  const [revisionLocation] = useState<string>('Kolkata');
+  const [revisionVariable] = useState<string>('temperature_2m');
+  const [revisionLeadHours] = useState<number>(24);
 
   // Live UTC Clock
   useEffect(() => {
@@ -70,6 +84,32 @@ export const App: React.FC = () => {
     setDashboardData(null);
     setSelectedLeadHours(null);
     setError(null);
+
+    const trimmed = newLoc.trim();
+    const matchedPreset = BENCHMARK_LOCATIONS.find(
+      (l) => l.name.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (matchedPreset) {
+      setLat(matchedPreset.lat);
+      setLon(matchedPreset.lon);
+    } else {
+      const coordMatch = trimmed.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+      if (coordMatch) {
+        const parsedLat = parseFloat(coordMatch[1]);
+        const parsedLon = parseFloat(coordMatch[2]);
+        if (
+          !isNaN(parsedLat) &&
+          !isNaN(parsedLon) &&
+          parsedLat >= -90 &&
+          parsedLat <= 90 &&
+          parsedLon >= -180 &&
+          parsedLon <= 180
+        ) {
+          setLat(parsedLat);
+          setLon(parsedLon);
+        }
+      }
+    }
   };
 
   const handleVariableChange = (newVar: string) => {
@@ -240,6 +280,38 @@ export const App: React.FC = () => {
           </div>
         )}
 
+        {view === 'spatial' && (
+          <SpatialReliabilityPanel onNavigateToMultiLocation={() => setView('multi-location')} />
+        )}
+        {view === 'multi-location' && (
+          <MultiLocationPanel
+            onNavigateToSpatial={() => setView('spatial')}
+            onNavigateToDisagreement={(loc, v, lh) => {
+              if (loc) setDisagreementLocation(loc);
+              if (v) setDisagreementVariable(v);
+              if (lh) setDisagreementLeadHours(lh);
+              setView('disagreement');
+            }}
+          />
+        )}
+        {view === 'disagreement' && (
+          <ForecastDisagreementPanel
+            initialLocation={disagreementLocation}
+            initialVariable={disagreementVariable}
+            initialLeadHours={disagreementLeadHours}
+            onNavigateToSpatial={() => setView('spatial')}
+            onNavigateToMultiLocation={() => setView('multi-location')}
+          />
+        )}
+        {view === 'revision' && (
+          <ForecastRevisionPanel
+            initialLocation={revisionLocation}
+            initialVariable={revisionVariable}
+            initialLeadHours={revisionLeadHours}
+            onNavigateToDisagreement={() => setView('disagreement')}
+            onNavigateToMultiLocation={() => setView('multi-location')}
+          />
+        )}
         {view === 'replay' && <ReplayView />}
         {view === 'analogs' && (
           <AnalogExplorer variable={variable} leadHours={selectedLeadHours || 48} />
@@ -256,12 +328,11 @@ export const App: React.FC = () => {
         onClose={() => setIsProvenanceOpen(false)}
       />
 
-
       {/* Footer */}
       <footer>
         <div>
           <a
-            href="https://github.com/RupanjanDutta2006/Veyra-Know-When-Forecasts-May-Fail"
+            href="https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-3"
             target="_blank"
             rel="noreferrer"
           >

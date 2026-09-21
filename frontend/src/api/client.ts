@@ -16,6 +16,16 @@ import {
   PredictionRequest,
   PredictionResponse,
   V3ModelEvaluationResponse,
+  SpatialReliabilityRequest,
+  SpatialReliabilityResponse,
+  ForecastDisagreementRequest,
+  ForecastDisagreementResponse,
+  ForecastRevisionRequest,
+  ForecastRevisionResponse,
+  ScientificCertificationResult,
+  CertificationEvaluationRequest,
+  CrossProviderDisagreementRequest,
+  CrossProviderDisagreementResponse,
 } from './types';
 
 // Resolve base API URL from environment variable or fallback to http://127.0.0.1:8000 in dev
@@ -532,6 +542,236 @@ export class VeyraApiClient {
         error: {
           error: 'PROVENANCE_FETCH_FAILED',
           message: 'Unable to fetch data provenance metadata.',
+          status_code: 0,
+        },
+      };
+    }
+  }
+
+  /**
+   * Evaluate spatial forecast reliability across multiple discrete locations.
+   */
+  async getSpatialReliability(
+    request: SpatialReliabilityRequest,
+    customRequestId?: string
+  ): Promise<{ data?: SpatialReliabilityResponse; error?: ApiError; requestId?: string }> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    };
+
+    if (customRequestId) {
+      headers['X-Request-ID'] = customRequestId;
+    }
+
+    try {
+      const endpoint = `${this.baseUrl}/v1/spatial/reliability`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(request),
+      });
+
+      const responseRequestId =
+        response.headers.get('x-request-id') || response.headers.get('X-Request-ID') || undefined;
+
+      if (!response.ok) {
+        const error = await this.parseErrorResponse(response, responseRequestId);
+        return { error, requestId: responseRequestId };
+      }
+
+      const data: SpatialReliabilityResponse = await response.json();
+      return { data, requestId: responseRequestId };
+    } catch (err: unknown) {
+      return {
+        error: {
+          error: 'NETWORK_ERROR',
+          message: err instanceof Error ? err.message : 'Failed to communicate with Veyra spatial reliability API.',
+          status_code: 0,
+        },
+      };
+    }
+  }
+
+  /**
+   * Fetch forecast disagreement and ensemble dispersion diagnostics.
+   */
+  async getForecastDisagreement(
+    request: ForecastDisagreementRequest,
+    customRequestId?: string
+  ): Promise<{ data?: ForecastDisagreementResponse; error?: ApiError; requestId?: string }> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    };
+    if (customRequestId) {
+      headers['X-Request-ID'] = customRequestId;
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/v1/disagreement/diagnostics`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(request),
+      });
+
+      const headerRequestId = response.headers.get('X-Request-ID') || undefined;
+
+      if (!response.ok) {
+        const error = await this.parseErrorResponse(response, headerRequestId);
+        return { error, requestId: headerRequestId };
+      }
+
+      const data: ForecastDisagreementResponse = await response.json();
+      return { data, requestId: headerRequestId || data.request_id };
+    } catch (err: unknown) {
+      return {
+        error: {
+          error: 'DISAGREEMENT_FETCH_FAILED',
+          message: err instanceof Error ? err.message : 'Disagreement diagnostics request failed.',
+          status_code: 0,
+        },
+      };
+    }
+  }
+
+  /**
+   * Evaluate forecast revision and issue-cycle trajectory for the requested target.
+   */
+  async getForecastRevision(
+    request: ForecastRevisionRequest,
+    customRequestId?: string
+  ): Promise<{ data?: ForecastRevisionResponse; error?: ApiError; requestId?: string }> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    };
+
+    if (customRequestId) {
+      headers['X-Request-ID'] = customRequestId;
+    }
+
+    try {
+      const endpoint = `${this.baseUrl}/v1/revision/trajectory`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(request),
+      });
+
+      const headerRequestId = response.headers.get('X-Request-ID') || undefined;
+
+      if (!response.ok) {
+        const error = await this.parseErrorResponse(response, headerRequestId);
+        return { error, requestId: headerRequestId };
+      }
+
+      const data: ForecastRevisionResponse = await response.json();
+      return { data, requestId: headerRequestId || data.request_id };
+    } catch (err: unknown) {
+      return {
+        error: {
+          error: 'REVISION_FETCH_FAILED',
+          message: err instanceof Error ? err.message : 'Forecast revision request failed.',
+          status_code: 0,
+        },
+      };
+    }
+  }
+
+  /**
+   * Fetch the frozen scientific certification policy metadata.
+   */
+  async getCertificationPolicy(): Promise<{ data?: any; error?: ApiError }> {
+    try {
+      const endpoint = `${this.baseUrl}/v1/certification/policy`;
+      const response = await fetch(endpoint, {
+        headers: { Accept: 'application/json' },
+      });
+
+      if (!response.ok) {
+        const error = await this.parseErrorResponse(response);
+        return { error };
+      }
+
+      const data = await response.json();
+      return { data };
+    } catch (err: unknown) {
+      return {
+        error: {
+          error: 'POLICY_FETCH_FAILED',
+          message: err instanceof Error ? err.message : 'Certification policy request failed.',
+          status_code: 0,
+        },
+      };
+    }
+  }
+
+  /**
+   * Evaluate certification status for a location, variable, lead_hours.
+   */
+  async evaluateCertification(
+    request: CertificationEvaluationRequest
+  ): Promise<{ data?: ScientificCertificationResult; error?: ApiError }> {
+    try {
+      const endpoint = `${this.baseUrl}/v1/certification/evaluate`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        const error = await this.parseErrorResponse(response);
+        return { error };
+      }
+
+      const data: ScientificCertificationResult = await response.json();
+      return { data };
+    } catch (err: unknown) {
+      return {
+        error: {
+          error: 'CERTIFICATION_EVALUATION_FAILED',
+          message: err instanceof Error ? err.message : 'Certification evaluation request failed.',
+          status_code: 0,
+        },
+      };
+    }
+  }
+
+  /**
+   * Evaluate Day 38 cross-provider forecast disagreement diagnostics.
+   * Performs diagnostic comparison between normalized provider forecast values.
+   */
+  async getCrossProviderDisagreement(
+    request: CrossProviderDisagreementRequest
+  ): Promise<{ data?: CrossProviderDisagreementResponse; error?: ApiError }> {
+    try {
+      const endpoint = `${this.baseUrl}/v1/provider-disagreement/diagnostics`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      if (!response.ok) {
+        const error = await this.parseErrorResponse(response);
+        return { error };
+      }
+
+      const data: CrossProviderDisagreementResponse = await response.json();
+      return { data };
+    } catch (err: unknown) {
+      return {
+        error: {
+          error: 'CROSS_PROVIDER_DISAGREEMENT_FAILED',
+          message: err instanceof Error ? err.message : 'Cross-provider disagreement request failed.',
           status_code: 0,
         },
       };

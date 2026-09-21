@@ -20,6 +20,9 @@ from backend.app.api.v1.endpoints import (
     certification,
     ood,
     revision,
+    spatial,
+    disagreement,
+    provider_disagreement,
 )
 
 api_router = APIRouter()
@@ -121,3 +124,22 @@ api_router.include_router(
     prefix="/revision",
     tags=["Forecast Revision Intelligence"],
 )
+
+api_router.include_router(
+    spatial.router,
+    prefix="/spatial",
+    tags=["Spatial Forecast Reliability"],
+)
+
+api_router.include_router(
+    disagreement.router,
+    prefix="/disagreement",
+    tags=["Forecast Disagreement & Ensemble Dispersion"],
+)
+
+api_router.include_router(
+    provider_disagreement.router,
+    prefix="/disagreement",
+    tags=["Cross-Provider Disagreement"],
+)
+

@@ -1,7 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Crosshair, Layers, Cpu, FileCode, ExternalLink, Menu, X, History, Compass, BarChart3 } from 'lucide-react';
+import {
+  Crosshair,
+  Layers,
+  Cpu,
+  FileCode,
+  ExternalLink,
+  Menu,
+  X,
+  History,
+  Compass,
+  BarChart3,
+  MapPin,
+  SlidersHorizontal,
+  GitCompare,
+  TrendingUp,
+} from 'lucide-react';
 
-export type ActiveView = 'sentinel' | 'replay' | 'analogs' | 'metrics' | 'batch' | 'models' | 'docs';
+export type ActiveView =
+  | 'sentinel'
+  | 'spatial'
+  | 'multi-location'
+  | 'disagreement'
+  | 'revision'
+  | 'replay'
+  | 'analogs'
+  | 'metrics'
+  | 'batch'
+  | 'models'
+  | 'docs';
 
 const DOCS_EXTERNAL_URL = 'http://127.0.0.1:8000/docs';
 
@@ -50,6 +76,14 @@ export const Navigation: React.FC<NavigationProps> = ({ view, setView, onOpenPro
         <span className="mobile-current-view">
           {view === 'sentinel'
             ? 'Reliability Sentinel'
+            : view === 'spatial'
+            ? 'Spatial Reliability'
+            : view === 'multi-location'
+            ? 'Multi-Location Intelligence'
+            : view === 'disagreement'
+            ? 'Forecast Disagreement'
+            : view === 'revision'
+            ? 'Forecast Revision'
             : view === 'replay'
             ? 'Historical Replay'
             : view === 'analogs'
@@ -74,6 +108,106 @@ export const Navigation: React.FC<NavigationProps> = ({ view, setView, onOpenPro
             onClick={() => handleSelectView('sentinel')}
           >
             <Crosshair size={16} /> Reliability Sentinel
+          </button>
+        </div>
+
+        {/* Spatial Reliability Intelligence Direct Button (Day 27) */}
+        <div className="dropdown">
+          <button
+            type="button"
+            className={view === 'spatial' ? 'active' : ''}
+            onClick={() => handleSelectView('spatial')}
+          >
+            <MapPin size={16} /> Spatial Reliability
+            <span
+              style={{
+                marginLeft: '6px',
+                background: '#0ea5e9',
+                color: '#ffffff',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+              }}
+            >
+              Day 27
+            </span>
+          </button>
+        </div>
+
+        {/* Multi-Location Intelligence Direct Button (Day 28) */}
+        <div className="dropdown">
+          <button
+            type="button"
+            className={view === 'multi-location' ? 'active' : ''}
+            onClick={() => handleSelectView('multi-location')}
+          >
+            <SlidersHorizontal size={16} /> Multi-Location
+            <span
+              style={{
+                marginLeft: '6px',
+                background: '#8b5cf6',
+                color: '#ffffff',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+              }}
+            >
+              Day 28
+            </span>
+          </button>
+        </div>
+
+        {/* Forecast Disagreement Intelligence Direct Button (Day 29) */}
+        <div className="dropdown">
+          <button
+            type="button"
+            className={view === 'disagreement' ? 'active' : ''}
+            onClick={() => handleSelectView('disagreement')}
+          >
+            <GitCompare size={16} /> Disagreement
+            <span
+              style={{
+                marginLeft: '6px',
+                background: '#6366f1',
+                color: '#ffffff',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+              }}
+            >
+              Day 29
+            </span>
+          </button>
+        </div>
+
+        {/* Forecast Revision / Trajectory Intelligence Direct Button (Day 30) */}
+        <div className="dropdown">
+          <button
+            type="button"
+            className={view === 'revision' ? 'active' : ''}
+            onClick={() => handleSelectView('revision')}
+          >
+            <TrendingUp size={16} /> Revision
+            <span
+              style={{
+                marginLeft: '6px',
+                background: '#0284c7',
+                color: '#ffffff',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+              }}
+            >
+              Day 30
+            </span>
           </button>
         </div>
 
@@ -131,6 +265,20 @@ export const Navigation: React.FC<NavigationProps> = ({ view, setView, onOpenPro
             onClick={() => handleSelectView('batch')}
           >
             <Layers size={16} /> Batch Evaluation
+            <span
+              style={{
+                marginLeft: '6px',
+                background: '#ffd200',
+                color: '#002b49',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                letterSpacing: '0.02em',
+              }}
+            >
+              25 Stations
+            </span>
           </button>
         </div>
 
@@ -195,4 +343,3 @@ export const Navigation: React.FC<NavigationProps> = ({ view, setView, onOpenPro
 };
 
 export default Navigation;
-

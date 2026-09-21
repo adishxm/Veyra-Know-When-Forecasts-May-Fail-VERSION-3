@@ -261,6 +261,45 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }
             <span>±{uncertainty_pct.toFixed(1)}% (90% Conformal)</span>
           </div>
         )}
+
+        {/* Scientific Certification Badge */}
+        {prediction.certification && (
+          <div
+            className={`trust-badge cert-badge ${
+              prediction.certification.certification_status === 'CERTIFIED'
+                ? 'cert-certified'
+                : prediction.certification.certification_status === 'OUTSIDE_CERTIFIED_SCOPE'
+                ? 'cert-outside'
+                : 'cert-unknown'
+            }`}
+            role="status"
+            aria-label={`Scientific Certification: ${prediction.certification.certification_status}`}
+            title={`Scientific Certification (${prediction.certification.certification_policy_version}): ${prediction.certification.certification_reason}`}
+            style={{
+              borderColor:
+                prediction.certification.certification_status === 'CERTIFIED'
+                  ? '#10b981'
+                  : prediction.certification.certification_status === 'OUTSIDE_CERTIFIED_SCOPE'
+                  ? '#f59e0b'
+                  : '#ef4444',
+              color:
+                prediction.certification.certification_status === 'CERTIFIED'
+                  ? '#059669'
+                  : prediction.certification.certification_status === 'OUTSIDE_CERTIFIED_SCOPE'
+                  ? '#d97706'
+                  : '#dc2626',
+              fontWeight: 600,
+            }}
+          >
+            <span>
+              {prediction.certification.certification_status === 'CERTIFIED'
+                ? 'CERTIFIED EVIDENCE SCOPE'
+                : prediction.certification.certification_status === 'OUTSIDE_CERTIFIED_SCOPE'
+                ? 'OUTSIDE CERTIFIED EVIDENCE SCOPE'
+                : 'CERTIFICATION UNKNOWN'}
+            </span>
+          </div>
+        )}
       </div>
     </section>
   );
