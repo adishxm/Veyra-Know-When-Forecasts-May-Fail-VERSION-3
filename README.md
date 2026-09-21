@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/SIH-2026-orange.svg?style=for-the-badge&logo=target" alt="SIH 2026" />
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
-  <img src="https://img.shields.io/badge/Tests-946%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="946 Tests Passing (888 Backend + 58 Frontend)" />
+  <img src="https://img.shields.io/badge/Tests-996%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="996 Tests Passing (888 Backend + 108 Frontend)" />
   <img src="https://img.shields.io/badge/Master%20Gates-10%2F10%20Passed%20(100%25)-success.svg?style=for-the-badge&logo=checkmarx" alt="Master Gates 10/10 Passed" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%206-61dafb.svg?style=for-the-badge&logo=react" alt="React 19" />
@@ -526,16 +526,21 @@ All endpoints are strictly versioned under `/v1` and provide OpenAPI 3.1 documen
 
 ## 12. Sentinel Operational Dashboard
 
-The frontend is an enterprise meteorological workstation built with **React 19, TypeScript, and Vite**:
+The frontend is an enterprise meteorological workstation built with **React 19, TypeScript, and Vite**, unifying all 11 operational and diagnostic views with zero feature loss:
 
-- **Spatial Risk Map**: Displays 6 Indian synoptic meteorological regions (`IN_NORTH` to `IN_NORTHEAST`), 5-tier risk band coloring (`GREEN`, `YELLOW`, `ORANGE`, `RED`, `GRAY`), 42.5 km centroid error circles, and interactive layer controls.
-- **Evidence & SHAP Panel**: Visualizes signed SHAP contribution bars (`+0.245`, `-0.065`), model issue timestamps vs feature availability timestamps (`availability_time <= issue_time` to prove zero lookahead), and meteorological reason codes.
-- **Historical Analog Explorer**: Displays top synoptic weather analogs with similarity scores, L2 distances, and the authoritative **"No eligible analog found"** empty state.
-- **Deterministic Historical Replay**: Interactive 5-cycle stepper for Cyclone Tauktae (May 2021) and Cyclone Biparjoy (June 2023) with **sealed future truth** until the operator explicitly unseals ground truth verification.
-- **Model vs Baseline Toggle**: Direct comparison between full Veyra Sentinel and the ensemble spread-only baseline, highlighting the **+24.0h to +96.0h warning lead-time gain**.
-- **Trust Banner Taxonomy**: Standardized 4-tier taxonomy (`NORMAL`, `UNUSUAL`, `OOD`, `ABSTAIN`) with explicit **"I don't know — human review required"** wording and probability number suppression on abstention.
-- **Scientific Research Metrics**: 6-tab analysis suite featuring a 10-bin SVG Reliability Diagram, Warning Lead-Time Gain curves, Spatial FSS/IoU metrics, and Coverage-Risk curves.
-- **Data Provenance Drawer**: Slide-out drawer displaying data sources, artifact SHA-256 checksums, and pipeline lineage.
+1. **Reliability Sentinel**: Full 3-column operational layout with atmospheric target input, Leaflet map with 6 Indian synoptic regions & centroid error circles, multi-horizon risk timeline chart, model vs baseline toggle (+24h to +96h lead gain), and conformal verification panel with reason codes.
+2. **Spatial Reliability (Day 27)**: Discrete 25-station spatial reliability matrix with interactive Leaflet markers, real-time risk classification, and geographical cluster diagnostics.
+3. **Multi-Location Intelligence (Day 28)**: High-density multi-station monitoring dashboard with toggleable cards/table views, risk tier filters (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, `ABSTAIN`), and deep physical driver inspection.
+4. **Forecast Disagreement Diagnostics (Day 29)**: Ensemble dispersion diagnostics, member outlier analysis, spread-to-error ratios, and spatial variance breakdown across forecast horizons.
+5. **Forecast Revision Trajectory (Day 30)**: Cycle-over-cycle forecast stability tracker measuring forecast "flip-flop" and trajectory volatility across consecutive NWP runs.
+6. **Cross-Provider Disagreement (Day 38)**: Inter-model diagnostic comparison between ECMWF, GFS, and regional NWP outputs with normalized units.
+7. **Deterministic Historical Replay (§20 Digital Twin)**: Interactive 5-cycle stepper for Cyclone Tauktae (May 2021) and Cyclone Biparjoy (June 2023) with sealed future truth until operator explicitly unseals ground truth.
+8. **Historical Analog Explorer**: Nearest synoptic weather analogs with cosine/L2 distance rankings and authoritative "No eligible analog found" null state.
+9. **Scientific Research Metrics (§18.1)**: 6-tab research analysis suite featuring a 10-bin SVG Reliability Diagram, Warning Lead-Time Gain curves, Spatial FSS/IoU metrics, and Coverage-Risk curves.
+10. **Batch Evaluation (25 Stations)**: Concurrent multi-station batch prediction across all 25 benchmark stations with isolated error containment.
+11. **Model Registry (E0–E4)**: Full model architecture catalog, SHA-256 integrity hashes, and promotion gate audits.
+- **Embedded API Documentation & Lineage Drawer**: Direct interactive OpenAPI integration and slide-out Data Lineage & Provenance Drawer with SHA-256 checksums.
+- **Scientific Certification**: Rigorous 25-station evidence scope badges (`CERTIFIED EVIDENCE SCOPE` vs `OUTSIDE CERTIFIED EVIDENCE SCOPE`) and horizon scope separation ($\le 240\text{h}$ certified vs $> 240\text{h}$ extended operational).
 
 ---
 
