@@ -5,6 +5,8 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field, model_validator
 
 from backend.app.schemas.explainability import ExplanationItem
+from backend.app.schemas.certification import ScientificCertificationResult
+from backend.app.schemas.ood import OODDiagnosticResult
 
 
 class TrustState(str, Enum):
@@ -413,6 +415,14 @@ class PredictionResponse(BaseModel):
         description="Verification ground truth status: PENDING, VERIFIED, or UNVERIFIED (§12, G11)",
     )
     # Phase 9 Failure Handling, Security & Scope Enforcement Fields (§1, §3.1, §21, §22)
+    certification: Optional[ScientificCertificationResult] = Field(
+        default=None,
+        description="Evaluated Day 32 Scientific Certification Gate result assessing evidence bounds",
+    )
+    ood_diagnostics: Optional[OODDiagnosticResult] = Field(
+        default=None,
+        description="Physical out-of-distribution diagnostic evaluation (Gate C2)",
+    )
     is_certified: Optional[bool] = Field(
         default=True,
         description="Whether query parameters conform strictly to certified operational scope (A3)",

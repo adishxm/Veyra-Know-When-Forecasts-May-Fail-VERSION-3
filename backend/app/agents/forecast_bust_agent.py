@@ -41,6 +41,7 @@ from backend.app.services.feature_service import UnavailableFeatureService
 from backend.app.services.model_service import UnavailableModelService
 from backend.app.services.weather_service import UnavailableWeatherService
 from backend.app.core.audit_logger import default_audit_logger, AuditLogger
+from backend.app.core.certification_policy import evaluate_scientific_certification
 from backend.app.safety.ood_enforcement import default_ood_enforcer, OODEnforcer, OODEnforcementResult
 from backend.app.safety.scope_enforcer import default_scope_enforcer, ScopeEnforcer, ScopeValidationResult
 from backend.app.services.fallback_service import (
@@ -491,8 +492,17 @@ class ForecastBustAgent:
             if final_trust == TrustState.HIGH_CONFIDENCE:
                 final_trust = scope_result.max_allowable_trust_state
 
+        cert_result = evaluate_scientific_certification(
+            location=location,
+            variable=var_name,
+            lead_hours=evaluated_lead or 24,
+            model_sha256=model_meta.get("model_sha256"),
+            calibrator_sha256=model_meta.get("calibrator_sha256"),
+        )
+
         return PredictionResponse(
             location=location,
+            certification=cert_result,
             bust_probability=safety_assessment.bust_probability,
             risk_level=safety_assessment.risk_level,
             trust_state=final_trust,

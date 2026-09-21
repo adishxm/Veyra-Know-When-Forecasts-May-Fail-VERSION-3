@@ -17,6 +17,8 @@ from backend.app.api.v1.endpoints import (
     explanation,
     hazard,
     review,
+    certification,
+    ood,
 )
 
 api_router = APIRouter()
@@ -101,4 +103,14 @@ api_router.include_router(
 api_router.include_router(
     hazard.router,
     tags=["Hazard Dynamics & Motifs"],
+)
+
+api_router.include_router(
+    certification.router,
+    tags=["Scientific Certification"],
+)
+
+api_router.include_router(
+    ood.router,
+    tags=["OOD Diagnostic Policy"],
 )
