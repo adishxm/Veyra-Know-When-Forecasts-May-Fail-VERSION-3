@@ -1,0 +1,3 @@
+﻿82eded8194151e37fb9b3eecf273010dc62d7b29
+2026-09-21T00:02:06+05:30
+docs: add complete scientific workflow architecture as per research to README

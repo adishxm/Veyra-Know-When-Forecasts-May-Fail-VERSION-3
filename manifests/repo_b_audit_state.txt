@@ -1,0 +1,4 @@
+'SHA:82eded8194151e37fb9b3eecf273010dc62d7b29
+Date:2026-09-21T00:02:06+05:30
+Subject:docs: add complete scientific workflow architecture as per research to README
+Branch:HEAD -> integration/sih-round2-selective-merge, tag: audit-repo-b-82eded8, origin/main, origin/HEAD, main'

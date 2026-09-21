@@ -1,13 +1,14 @@
-# Veyra Sentinel — Know When Forecasts May Fail
+# Veyra-Know-When-Forecasts-May-Fail-VERSION-3
+## Veyra Sentinel — Know When Forecasts May Fail
 
 <p align="center">
   <img src="https://img.shields.io/badge/SIH-2026-orange.svg?style=for-the-badge&logo=target" alt="SIH 2026" />
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
-  <img src="https://img.shields.io/badge/Tests-816%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="816 Tests Passing (758 Backend + 58 Frontend)" />
+  <img src="https://img.shields.io/badge/Tests-946%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="946 Tests Passing (888 Backend + 58 Frontend)" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%206-61dafb.svg?style=for-the-badge&logo=react" alt="React 19" />
-  <img src="https://img.shields.io/badge/Architecture-Builder%202%20Certified-purple.svg?style=for-the-badge" alt="Builder 2 Certified" />
+  <img src="https://img.shields.io/badge/Architecture-Round--2%20Consolidated-purple.svg?style=for-the-badge" alt="Round-2 Consolidated" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License" />
 </p>
 
