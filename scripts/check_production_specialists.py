@@ -8,8 +8,10 @@ import sys
 import os
 
 WORKSPACE = os.path.abspath(".")
-REPO_B = os.path.join(WORKSPACE, "repos", "repo_b")
-sys.path.insert(0, REPO_B)
+if os.path.exists(os.path.join(WORKSPACE, "backend")):
+    sys.path.insert(0, WORKSPACE)
+elif os.path.exists(os.path.join(WORKSPACE, "repos", "repo_b", "backend")):
+    sys.path.insert(0, os.path.join(WORKSPACE, "repos", "repo_b"))
 
 from backend.app.builder2.specialist_registry import (
     SPECIALIST_REGISTRY,
