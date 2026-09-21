@@ -19,6 +19,7 @@ from backend.app.api.v1.endpoints import (
     review,
     certification,
     ood,
+    revision,
 )
 
 api_router = APIRouter()
@@ -113,4 +114,10 @@ api_router.include_router(
 api_router.include_router(
     ood.router,
     tags=["OOD Diagnostic Policy"],
+)
+
+api_router.include_router(
+    revision.router,
+    prefix="/revision",
+    tags=["Forecast Revision Intelligence"],
 )
