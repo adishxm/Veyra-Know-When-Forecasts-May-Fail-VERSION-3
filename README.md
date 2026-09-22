@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
   <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20c9903fa-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at c9903fa" /></a>
-  <img src="https://img.shields.io/badge/Backend%20Tests-932%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="932 Backend Tests Passed" />
+  <img src="https://img.shields.io/badge/Backend%20Tests-952%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="952 Backend Tests Passed" />
   <img src="https://img.shields.io/badge/Frontend%20Tests-111%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="111 Frontend Tests Passed" />
   <img src="https://img.shields.io/badge/Gates%20Status-10%2F10%20Passed-brightgreen.svg?style=for-the-badge" alt="All 10 Master Gates Passed" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
@@ -163,7 +163,7 @@ The merged candidate in **VERSION-3** resolves all technical debt, scientific di
 | **G9, G11**| Phase 5: Revision & Replay | Durable revision store, honest replay matrix, digital twin engine | `python scripts/gate_test_phase5.py` | **100% PASSED** |
 | **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **100% PASSED** |
 | **G14–G17**| Phase 7: CI & Test Suite | 932 backend tests + 111 frontend tests passing (1,043 total), 500-test ledger (376 passed, 124 N/A), release gate validation | `pytest backend/tests -q` & `npm test` | **100% PASSED** |
-| **P8** | Phase 8: Submission Readiness | Clean-clone reproduction from isolated temporary workspace, release tags | `python scripts/gate_test_phase8.py` | **100% PASSED** |
+| **P8** | Phase 8: Demo & Operational Hardening | Fixture-scoped Builder-2 fallback, trust-state contract alignment, UI data provenance badges, 952 backend + 111 frontend tests (1,063 total) | `python scripts/gate_test_phase8.py` | **100% PASSED** |
 
 > **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. *Note: Baseline audit at commit c9903fa identified 6 specific failures across release, smoke, and external workspace gates (documented in [`audit/baseline.md`](audit/baseline.md)). Repairs are scheduled across Roadmap Phases 03 through 05.*
 
@@ -468,6 +468,28 @@ When atmospheric conditions exceed certified operational envelopes, Veyra explic
 | `REFERENCE_UNAVAILABLE` | Ground truth verification reference missing | Marks `ABSTAIN`; flags forecaster | Ensures predictions are never issued without truth auditing |
 | `PHYSICAL_INCONSISTENCY` | Conservation law violation (e.g., negative Kelvin) | Immediate abstention with diagnostic flag | Eliminates physically impossible predictions |
 | `SEVERITY_LIMIT_UNSUPPORTED` | Extreme event beyond certified calibration envelope | Downgrades to `DIAGNOSTIC_ONLY` | Prevents overconfident warnings on unprecedented extremes |
+
+### 8.3 Trust-State Contract & Data Source Provenance (Phase 08)
+
+To eliminate operational ambiguity between production NWP telemetry, test fixtures, and synthetic simulations, Veyra Sentinel enforces an authoritative Trust-State Contract ([`docs/trust-state-contract.md`](docs/trust-state-contract.md)):
+
+#### Trust State Contract
+| Trust State | Meaning | Probability Returned | User Action |
+|---|---|---|---|
+| `HIGH_CONFIDENCE` | All pipeline stages nominal; OOD state = NORMAL | Yes (calibrated) | Actionable forecast reliability assessment |
+| `MODERATE_CONFIDENCE` | OOD state = UNUSUAL; elevated atmospheric variance | Yes (calibrated, widened intervals) | Interpret with caution; review recommended |
+| `LOW_CONFIDENCE` | OOD state = OOD; outside training distribution | Yes (uncalibrated) | Do not rely on probability; human review required |
+| `ABSTAINED` | OOD state = ABSTAIN; probability boundary violation | No (None) | System refuses to score; human forecaster decides |
+| `UNAVAILABLE` | Upstream failure (data, features, model, or location) | No (None) | System cannot operate; check infrastructure |
+
+#### Data Source Provenance Modes
+Every prediction response and UI rendering carries explicit data provenance disclosure:
+- 🟢 **Live (`LIVE`)**: Real-time forecast telemetry directly from Open-Meteo GEFS.
+- 🔵 **Fixture (`FIXTURE`)**: Deterministic, checksummed test fixture (used in offline / fixture-scoped smoke verification).
+- 🟣 **Synthetic (`SYNTHETIC`)**: Scenario digital twin or counterfactual simulation.
+- 🟡 **Cached (`CACHED`)**: Valid in-memory or persisted telemetry cache.
+- 🟠 **Fallback (`FALLBACK`)**: Controlled offline fallback weather dataset during upstream network degradation.
+- ⚫ **Unavailable (`UNAVAILABLE`)**: Upstream outage or unresolvable query state.
 
 ---
 

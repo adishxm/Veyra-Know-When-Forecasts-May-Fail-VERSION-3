@@ -12,6 +12,9 @@ export type TrustState =
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
+/** Phase 08: Data source provenance mode for trust disclosure. */
+export type DataSourceMode = 'LIVE' | 'FIXTURE' | 'SYNTHETIC' | 'CACHED' | 'FALLBACK' | 'UNAVAILABLE';
+
 export type SupportedVariable =
   | 'temperature_2m'
   | 'surface_pressure'
@@ -74,6 +77,8 @@ export interface PredictionResponse {
   certification?: ScientificCertificationResult | null;
   ood_diagnostics?: OODDiagnosticResult | null;
   model_provenance?: ModelProvenanceInfo | null;
+  /** Phase 08: Data source provenance mode for trust disclosure. */
+  data_source_mode?: DataSourceMode | null;
 }
 
 export interface HealthResponse {

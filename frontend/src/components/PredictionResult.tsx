@@ -1,5 +1,5 @@
 import React from 'react';
-import { PredictionResponse, RiskLevel } from '../api/types';
+import { PredictionResponse, RiskLevel, DataSourceMode } from '../api/types';
 
 interface PredictionResultProps {
   prediction: PredictionResponse;
@@ -102,6 +102,26 @@ function getRiskClass(risk: RiskLevel | null, isAbstained: boolean): string {
   }
 }
 
+/** Phase 08: Data source provenance badge for trust disclosure. */
+function getDataSourceBadge(mode: DataSourceMode | null | undefined): { label: string; icon: string; bg: string; color: string } {
+  switch (mode) {
+    case 'LIVE':
+      return { label: 'Live', icon: '🟢', bg: '#dcfce7', color: '#166534' };
+    case 'FIXTURE':
+      return { label: 'Fixture', icon: '🔵', bg: '#dbeafe', color: '#1e40af' };
+    case 'SYNTHETIC':
+      return { label: 'Synthetic', icon: '🟣', bg: '#f3e8ff', color: '#6b21a8' };
+    case 'CACHED':
+      return { label: 'Cached', icon: '🟡', bg: '#fef9c3', color: '#854d0e' };
+    case 'FALLBACK':
+      return { label: 'Fallback', icon: '🟠', bg: '#ffedd5', color: '#9a3412' };
+    case 'UNAVAILABLE':
+      return { label: 'Unavailable', icon: '⚫', bg: '#f1f5f9', color: '#334155' };
+    default:
+      return { label: 'Live', icon: '🟢', bg: '#dcfce7', color: '#166534' };
+  }
+}
+
 export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }) => {
   const {
     location,
@@ -116,6 +136,9 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }
     ood_score,
     lead_hours,
   } = prediction;
+
+  const dataSourceMode = (prediction as any).data_source_mode as DataSourceMode | null | undefined;
+  const sourceBadge = getDataSourceBadge(dataSourceMode);
 
   const isAbstained = abstain || trust_state === 'ABSTAINED' || trust_state === ('ABSTAIN' as any);
   const normalizedState = isAbstained ? 'ABSTAIN' : normalizeTrustState(trust_state);
@@ -164,6 +187,37 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }
           </div>
           <div style={{ fontSize: '0.8rem', color: banner.color, opacity: 0.9, marginTop: '3px', lineHeight: '1.4' }}>
             {banner.subtitle}
+          </div>
+
+          {/* Phase 08: Data source provenance badge */}
+          <div style={{ marginTop: '6px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <span
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                background: sourceBadge.bg,
+                color: sourceBadge.color,
+              }}
+              title={`Data source: ${sourceBadge.label}`}
+            >
+              {sourceBadge.icon} {sourceBadge.label}
+            </span>
+            {prediction.data_version && (
+              <span
+                style={{
+                  fontSize: '0.68rem',
+                  fontFamily: 'monospace',
+                  color: '#64748b',
+                  padding: '1px 6px',
+                  background: 'rgba(0,0,0,0.04)',
+                  borderRadius: '3px',
+                }}
+              >
+                {prediction.data_version}
+              </span>
+            )}
           </div>
 
           {/* If Abstained or OOD, show reason codes */}
