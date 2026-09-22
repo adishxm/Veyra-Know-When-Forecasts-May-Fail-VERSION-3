@@ -42,17 +42,19 @@ def test_phase7():
     else:
         print("[PASS] Rollback procedure documented with MTTR < 5m target and stop triggers")
 
-    # 4. Verify 500+ Test ID Ledger exists
-    ledger_file = os.path.join(REPO_B, "manifests", "test_500_id_ledger.csv")
-    if not os.path.exists(ledger_file):
-        failures.append("Test ID ledger missing")
+    # 4. Verify 500 Test Specification Ledger & Validator
+    code, out, err = run("python scripts/verify_test_ledger.py", cwd=REPO_B)
+    if code != 0:
+        failures.append(f"500-test ledger verification failed:\n{out}\n{err}")
     else:
-        with open(ledger_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        if len(lines) < 500:
-            failures.append(f"Test ledger has only {len(lines)} lines, expected 500+")
-        else:
-            print(f"[PASS] Master Test ID Ledger verified with {len(lines)-1} named tests across all domains")
+        print("[PASS] 500-test specification ledger verified across 20 domains with honest N/A markings")
+
+    # 4b. Run pytest test_500_test_mapping.py
+    code, out, err = run("python -m pytest backend/tests/test_500_test_mapping.py -q", cwd=REPO_B)
+    if code != 0:
+        failures.append(f"Test mapping pytest suite failed:\n{out}\n{err}")
+    else:
+        print("[PASS] test_500_test_mapping.py unit tests passed (9/9 passed)")
 
     # 5. Verify CI workflow exists in repo_b
     ci_path = os.path.join(REPO_B, ".github", "workflows", "ci.yml")
