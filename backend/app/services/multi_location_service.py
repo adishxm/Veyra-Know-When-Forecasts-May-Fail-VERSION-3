@@ -3,6 +3,7 @@
 Coordinates batch location resolution, parallel/sequential historical collection,
 deduplication, quality control isolation, and batch prediction workflows.
 """
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy
 import json
 import logging
@@ -25,7 +26,13 @@ from backend.app.schemas.multi_location import (
     MultiLocationPredictionRequest,
     MultiLocationPredictionResult,
 )
-from backend.app.schemas.prediction import PredictionRequest, PredictionResponse
+from backend.app.schemas.prediction import (
+    CalibrationStatus,
+    PredictionRequest,
+    PredictionResponse,
+    ReasonCode,
+    TrustState,
+)
 from backend.app.schemas.reference import ReferenceWeatherRecord
 from backend.app.services.historical_service import (
     BaseHistoricalDataService,
@@ -101,20 +108,45 @@ class MultiLocationService(BaseMultiLocationService):
             norm_key = loc_str.strip().lower()
             unique_queries.setdefault(norm_key, []).append(idx)
 
-        # 2. Process each unique location independently with isolated exception handling
+        # 2. Process each unique location in parallel with isolated exception handling
         intermediate_results: dict[str, MultiLocationHistoricalItemResult] = {}
-        for norm_key, indices in unique_queries.items():
-            sample_raw = raw_locations[indices[0]]
-            item_result = self._process_single_historical_location(
-                raw_location=sample_raw,
-                start_date=request.start_date,
-                end_date=request.end_date,
-                variables=request.variables,
-                data_version=request.data_version,
-                source=request.source,
-                timezone_str=request.timezone,
-            )
-            intermediate_results[norm_key] = item_result
+        max_workers = min(10, len(unique_queries)) if unique_queries else 1
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_key = {
+                executor.submit(
+                    self._process_single_historical_location,
+                    raw_locations[indices[0]],
+                    request.start_date,
+                    request.end_date,
+                    request.variables,
+                    request.data_version,
+                    request.source,
+                    request.timezone,
+                ): norm_key
+                for norm_key, indices in unique_queries.items()
+            }
+            for future in as_completed(future_to_key):
+                norm_key = future_to_key[future]
+                try:
+                    intermediate_results[norm_key] = future.result()
+                except Exception as exc:
+                    logger.error("Unhandled worker exception for historical %s: %s", norm_key, exc)
+                    sample_raw = raw_locations[unique_queries[norm_key][0]]
+                    intermediate_results[norm_key] = MultiLocationHistoricalItemResult(
+                        input_location=sample_raw,
+                        is_success=False,
+                        status="INTERNAL_ERROR",
+                        resolved_name=None,
+                        latitude=None,
+                        longitude=None,
+                        records=[],
+                        total_records=0,
+                        duplicates_removed=0,
+                        qc_passed=False,
+                        qc_violations=[],
+                        error_message=str(exc),
+                    )
 
         # 3. Reassemble deterministic results matching input order 1:1
         ordered_results: list[MultiLocationHistoricalItemResult] = []
@@ -257,18 +289,42 @@ class MultiLocationService(BaseMultiLocationService):
             unique_queries.setdefault(norm_key, []).append(idx)
 
         intermediate_preds: dict[str, PredictionResponse] = {}
-        for norm_key, indices in unique_queries.items():
-            sample_raw = raw_locations[indices[0]]
-            pred_req = PredictionRequest(
-                location=sample_raw,
+        max_workers = min(10, len(unique_queries)) if unique_queries else 1
+
+        def _eval_pred(norm_k: str, sample_raw_loc: str) -> tuple[str, PredictionResponse]:
+            p_req = PredictionRequest(
+                location=sample_raw_loc,
                 target_date=request.target_date,
                 variable=request.variable,
                 issue_time=request.issue_time,
                 valid_time=request.valid_time,
                 model_type=request.model_type,
             )
-            resp = agent.analyze(pred_req)
-            intermediate_preds[norm_key] = resp
+            return norm_k, agent.analyze(p_req)
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_key = {
+                executor.submit(_eval_pred, norm_key, raw_locations[indices[0]]): norm_key
+                for norm_key, indices in unique_queries.items()
+            }
+            for future in as_completed(future_to_key):
+                norm_key = future_to_key[future]
+                try:
+                    k, resp = future.result()
+                    intermediate_preds[k] = resp
+                except Exception as exc:
+                    logger.error("Failed batch prediction for location key %s: %s", norm_key, exc)
+                    sample_raw = raw_locations[unique_queries[norm_key][0]]
+                    intermediate_preds[norm_key] = PredictionResponse(
+                        location=sample_raw,
+                        bust_probability=None,
+                        risk_level=None,
+                        trust_state=TrustState.UNAVAILABLE,
+                        abstain=True,
+                        reason_codes=[ReasonCode.INTERNAL_ERROR.value],
+                        calibration_status=CalibrationStatus.UNAVAILABLE.value,
+                        decision_mode="ABSTAINED",
+                    )
 
         # Reassemble ordered outputs matching input 1:1
         ordered_results: list[MultiLocationPredictionItemResult] = []

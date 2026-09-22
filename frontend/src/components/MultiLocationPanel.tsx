@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Layers,
   ArrowUpDown,
@@ -110,7 +110,11 @@ export const MultiLocationPanel: React.FC<MultiLocationPanelProps> = ({ onNaviga
     }
   };
 
+  const initialMountEvaluatedRef = useRef(false);
+
   useEffect(() => {
+    if (initialMountEvaluatedRef.current) return;
+    initialMountEvaluatedRef.current = true;
     handleEvaluate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

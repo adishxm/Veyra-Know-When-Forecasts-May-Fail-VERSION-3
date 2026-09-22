@@ -35,7 +35,7 @@ def get_spatial_service() -> SpatialReliabilityService:
     ),
     response_description="Discrete spatial forecast reliability evaluation with summary metrics",
 )
-async def evaluate_spatial_reliability(
+def evaluate_spatial_reliability(
     request: SpatialReliabilityRequest,
     http_request: Request,
     service: SpatialReliabilityService = Depends(get_spatial_service),

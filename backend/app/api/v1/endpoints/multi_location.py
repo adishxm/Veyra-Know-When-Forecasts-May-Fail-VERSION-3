@@ -31,7 +31,7 @@ def get_multi_location_service() -> BaseMultiLocationService:
         "per-location failure isolation, deduplication, and deterministic result ordering."
     ),
 )
-async def predict_batch_forecast_bust(
+def predict_batch_forecast_bust(
     request: MultiLocationPredictionRequest,
     service: BaseMultiLocationService = Depends(get_multi_location_service),
 ) -> MultiLocationPredictionResult:
@@ -48,7 +48,7 @@ async def predict_batch_forecast_bust(
         "with per-location quality control, deduplication, and deterministic failure isolation."
     ),
 )
-async def collect_batch_historical_data(
+def collect_batch_historical_data(
     request: MultiLocationHistoricalRequest,
     service: BaseMultiLocationService = Depends(get_multi_location_service),
 ) -> MultiLocationHistoricalResult:

@@ -109,8 +109,13 @@ echo   Starting Veyra Sentinel Backend [port %BACKEND_PORT%]...
 echo  ===================================================================
 start "HEXARK-Backend" cmd /k "title HEXARK-Backend && cd /d "%~dp0" && python -m uvicorn backend.app.main:app --host 127.0.0.1 --port %BACKEND_PORT% --reload"
 
-echo  [*] Waiting for backend to initialize...
-ping 127.0.0.1 -n 4 >nul
+echo  [*] Waiting for backend to be ready at http://127.0.0.1:%BACKEND_PORT%/v1/health ...
+powershell -NoProfile -Command "$start = Get-Date; while (((Get-Date) - $start).TotalSeconds -lt 30) { try { $res = Invoke-WebRequest -Uri 'http://127.0.0.1:%BACKEND_PORT%/v1/health' -UseBasicParsing -TimeoutSec 2; if ($res.StatusCode -eq 200) { exit 0 } } catch {} Start-Sleep -Milliseconds 500 }; exit 1" >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    echo  [OK] Backend is online and responding!
+) else (
+    echo  [*] Notice: Backend is still warming up. Proceeding...
+)
 
 :: --- Start Frontend Dev Server ---
 echo.
@@ -119,8 +124,13 @@ echo   Starting Veyra Dashboard Frontend [port 5173]...
 echo  ===================================================================
 start "HEXARK-Frontend" cmd /k "title HEXARK-Frontend && cd /d "%~dp0frontend" && call npm run dev"
 
-echo  [*] Waiting for frontend to initialize...
-ping 127.0.0.1 -n 5 >nul
+echo  [*] Waiting for frontend to be ready at http://127.0.0.1:5173 ...
+powershell -NoProfile -Command "$start = Get-Date; while (((Get-Date) - $start).TotalSeconds -lt 30) { try { $res = Invoke-WebRequest -Uri 'http://127.0.0.1:5173' -UseBasicParsing -TimeoutSec 2; if ($res.StatusCode -eq 200 -or $res.StatusCode -eq 304) { exit 0 } } catch {} Start-Sleep -Milliseconds 500 }; exit 1" >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    echo  [OK] Frontend is online and responding!
+) else (
+    echo  [*] Notice: Frontend is still warming up. Proceeding...
+)
 
 :: --- Open Dashboard in Browser ---
 echo.

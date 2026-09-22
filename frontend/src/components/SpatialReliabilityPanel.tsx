@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import {
   MapPin,
@@ -115,8 +115,12 @@ export const SpatialReliabilityPanel: React.FC<SpatialReliabilityPanelProps> = (
     }
   };
 
+  const initialMountEvaluatedRef = useRef(false);
+
   // Evaluate on initial mount
   useEffect(() => {
+    if (initialMountEvaluatedRef.current) return;
+    initialMountEvaluatedRef.current = true;
     handleEvaluate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

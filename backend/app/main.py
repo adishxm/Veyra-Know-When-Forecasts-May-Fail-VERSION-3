@@ -1,4 +1,9 @@
 """Main FastAPI Application for Forecast-Bust Sentinel with Production Hardening."""
+import warnings
+
+# Suppress benign sklearn InconsistentVersionWarning from persisted models trained on different minor patch
+warnings.filterwarnings("ignore", message="Trying to unpickle estimator.*")
+
 import backend.app.core.runtime_compat  # noqa: F401 - Pre-load Linux serverless runtimes (libgomp.so.1)
 import logging
 from pathlib import Path
