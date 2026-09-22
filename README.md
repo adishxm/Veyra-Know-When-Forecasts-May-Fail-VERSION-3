@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
   <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20c9903fa-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at c9903fa" /></a>
-  <img src="https://img.shields.io/badge/Backend%20Tests-891%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="891 Backend Tests Passed" />
+  <img src="https://img.shields.io/badge/Backend%20Tests-900%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="900 Backend Tests Passed" />
   <img src="https://img.shields.io/badge/Frontend%20Tests-111%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="111 Frontend Tests Passed" />
   <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Gates%20Status-Failures%20listed%20in%20audit%2Fbaseline.md-yellow.svg?style=for-the-badge" alt="Failures listed in audit/baseline.md" /></a>
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
@@ -156,13 +156,13 @@ The merged candidate in **VERSION-3** resolves all technical debt, scientific di
 |:---:|:---|:---|:---|:---:|
 | **Step 1** | Workspace & Setup | Audit workspace initialization, clean worktrees, SHA locking | `python scripts/gate_test_step1.py` | **100% PASSED** |
 | **P0-0** | Phase 0: Freeze & Inventory | Immutable inventory, artifact hashing, candidate asset ledger | `python scripts/gate_test_phase0.py` | **100% PASSED** |
-| **P0-1** | Phase 1: Truth Alignment | Claim register (14 claims, 7 evidence classes), test 500 ID ledger | `python scripts/validate_claim_register.py` | **100% PASSED** |
+| **P0-1** | Phase 1: Truth Alignment | Claim register (19 claims across 7 evidence classes), test 500 ID ledger | `python scripts/validate_claim_register.py` | **100% PASSED** |
 | **P0-2** | Phase 2: Base Selection | Clean single canonical base (Repo B), branch protection, duplicate pruning | `python scripts/gate_test_phase2.py` | **100% PASSED** |
-| **G1–G3** | Phase 3: Artifact Repair | V3 LightGBM & Isotonic Calibrator verification, 50-feature schema lock | `python scripts/gate_test_phase3.py` | **100% PASSED** |
-| **P4** | Phase 4: Selective Safety | Ported Repo A UTC time contract, certification policy, OOD & abstention | `python scripts/gate_test_phase4.py` | **100% PASSED** |
-| **G9, G11**| Phase 5: Revision & Replay | Durable revision store, honest replay matrix, digital twin engine | `python scripts/gate_test_phase5.py` | **100% PASSED** |
-| **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **100% PASSED** |
-| **G14–G17**| Phase 7: CI & Test Suite | 888 backend tests + 58 frontend tests passing, release gate validation | `python scripts/gate_test_phase7.py` | **100% PASSED** |
+| **G1–G3** | Phase 3: Artifact Repair | V3 LightGBM & Isotonic Calibrator verification, 50-feature schema lock, /v1/predict route authority | `python scripts/verify_artifacts.py` | **100% PASSED** |
+| **P4** | Phase 4: Selective Safety | Ported Repo A UTC time contract, certification policy, OOD & abstention | `python scripts/gate_test_phase4.py` | **PENDING** |
+| **G9, G11**| Phase 5: Revision & Replay | Durable revision store, honest replay matrix, digital twin engine | `python scripts/gate_test_phase5.py` | **PENDING** |
+| **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **PENDING** |
+| **G14–G17**| Phase 7: CI & Test Suite | 900 backend tests + 111 frontend tests passing (1,011 total), release gate validation | `pytest backend/tests -q` & `npm test` | **100% PASSED** |
 | **P8** | Phase 8: Submission Readiness | Clean-clone reproduction from isolated temporary workspace, release tags | `python scripts/gate_test_phase8.py` | **100% PASSED** |
 
 > **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. *Note: Baseline audit at commit c9903fa identified 6 specific failures across release, smoke, and external workspace gates (documented in [`audit/baseline.md`](audit/baseline.md)). Repairs are scheduled across Roadmap Phases 03 through 05.*
@@ -710,10 +710,14 @@ cd ..
 # 1. Run Pre-Release Gate Verification (Security, Test Suite, & Model Hashes)
 python scripts/run_release_gates.py
 
-# 2. Run Isolated Clean-Clone Reproduction Test
+# 2. Verify V3 Model, Calibrator, & 50-Feature Contract Authority
+python scripts/verify_artifacts.py
+pytest -q backend/tests/test_v3_feature_contract_authority.py
+
+# 3. Run Isolated Clean-Clone Reproduction Test
 python scripts/clean_clone_reproduction.py
 
-# 3. Check V3 Golden Parity (Before vs After Grafting)
+# 4. Check V3 Golden Parity (Before vs After Grafting)
 python scripts/compare_golden_v3_outputs.py --baseline artifacts/golden_v3_before.json --candidate artifacts/golden_v3_after.json
 ```
 
@@ -767,7 +771,7 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   │   ├── builder2/                  # Prototype hazard specialists (formula baselines), calibrators & engines
 │   │   ├── safety/                    # Ported Repo A abstention, OOD detector & scope guards
 │   │   └── main.py                    # Application entry point
-│   └── tests/                         # 891 automated backend tests (100% passing)
+│   └── tests/                         # 900 automated backend tests (100% passing)
 │       ├── test_v3_*.py               # V3 model integrity, parity, calibration, & safety
 │       ├── test_day34_*.py            # Time contract & revision store
 │       ├── test_day37_*.py & 38_*.py  # Provider adapters & cross-provider disagreement
