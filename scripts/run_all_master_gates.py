@@ -17,7 +17,12 @@ import time
 import sys
 import os
 
-WORKSPACE = os.path.abspath(".")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    WORKSPACE = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    WORKSPACE = os.path.abspath("repos/repo_b")
+else:
+    WORKSPACE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 GATE_STEPS = [
     ("Step 1: Workspace & Repositories Setup", "python scripts/gate_test_step1.py"),

@@ -11,8 +11,12 @@ import shutil
 import sys
 import os
 
-WORKSPACE = os.path.abspath(".")
-SOURCE_REPO = os.path.join(WORKSPACE, "repos", "repo_b")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    SOURCE_REPO = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    SOURCE_REPO = os.path.abspath("repos/repo_b")
+else:
+    SOURCE_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
@@ -20,6 +24,8 @@ def run(cmd, cwd=None):
 
 def run_clean_clone_test(tag: str, log_dir: str) -> int:
     print(f"=== Running Clean-Clone Reproduction Test for Tag: [{tag}] ===")
+    if not os.path.isabs(log_dir):
+        log_dir = os.path.join(SOURCE_REPO, log_dir)
     os.makedirs(log_dir, exist_ok=True)
     temp_dir = tempfile.mkdtemp(prefix="veyra_clean_clone_")
     print(f"Isolated clean clone directory: {temp_dir}")

@@ -15,9 +15,19 @@ import argparse
 import sys
 import os
 
-WORKSPACE = os.path.abspath(".")
-REPO_B = os.path.join(WORKSPACE, "repos", "repo_b")
-sys.path.insert(0, REPO_B)
+from pathlib import Path
+
+# Resolve repository root dynamically
+CURRENT_DIR = Path.cwd()
+if (CURRENT_DIR / "backend").is_dir():
+    REPO_ROOT = CURRENT_DIR
+elif (CURRENT_DIR / "repos" / "repo_b" / "backend").is_dir():
+    REPO_ROOT = CURRENT_DIR / "repos" / "repo_b"
+else:
+    REPO_ROOT = Path(__file__).resolve().parent.parent
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from backend.app.core.time_contract import derive_and_validate_lead_hours
 from backend.app.core.ood_policy import evaluate_ood_policy, OODState

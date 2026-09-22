@@ -2,7 +2,12 @@ import subprocess
 import os
 import sys
 
-WORKSPACE = os.path.abspath(".")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    WORKSPACE = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    WORKSPACE = os.path.abspath("repos/repo_b")
+else:
+    WORKSPACE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)

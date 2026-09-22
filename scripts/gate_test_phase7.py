@@ -2,8 +2,13 @@ import subprocess
 import os
 import sys
 
-WORKSPACE = os.path.abspath(".")
-REPO_B = os.path.join(WORKSPACE, "repos", "repo_b")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    REPO_B = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    REPO_B = os.path.abspath("repos/repo_b")
+else:
+    REPO_B = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WORKSPACE = REPO_B
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
@@ -23,7 +28,7 @@ def test_phase7():
     # 2. Run release gates check
     code, out, err = run(
         "python scripts/run_release_gates.py --require-artifacts --require-replay --require-security --require-rollback",
-        cwd=WORKSPACE
+        cwd=REPO_B
     )
     if code != 0:
         failures.append(f"Release gates run failed:\n{out}\n{err}")
@@ -31,14 +36,14 @@ def test_phase7():
         print("[PASS] Compulsory release gates passed (G1, G3, G8, G11, G15, G16)")
 
     # 3. Verify Rollback documentation exists and is complete
-    rb_file = os.path.join(WORKSPACE, "manifests", "rollback_procedure.md")
+    rb_file = os.path.join(REPO_B, "manifests", "rollback_procedure.md")
     if not os.path.exists(rb_file) or os.path.getsize(rb_file) < 500:
         failures.append("Rollback procedure documentation missing or underspecified")
     else:
         print("[PASS] Rollback procedure documented with MTTR < 5m target and stop triggers")
 
     # 4. Verify 500+ Test ID Ledger exists
-    ledger_file = os.path.join(WORKSPACE, "manifests", "test_500_id_ledger.csv")
+    ledger_file = os.path.join(REPO_B, "manifests", "test_500_id_ledger.csv")
     if not os.path.exists(ledger_file):
         failures.append("Test ID ledger missing")
     else:

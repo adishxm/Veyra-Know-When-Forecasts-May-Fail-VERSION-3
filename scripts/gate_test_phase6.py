@@ -2,8 +2,12 @@ import subprocess
 import os
 import sys
 
-REPO_B = os.path.abspath("repos/repo_b")
-WORKSPACE = os.path.abspath(".")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    REPO_B = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    REPO_B = os.path.abspath("repos/repo_b")
+else:
+    REPO_B = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
@@ -29,7 +33,7 @@ def test_phase6():
 
     # 2. Run check_production_specialists CLI
     chk_cmd = "python scripts/check_production_specialists.py --fail-on-unvalidated-promotion"
-    code, out, err = run(chk_cmd, cwd=WORKSPACE)
+    code, out, err = run(chk_cmd, cwd=REPO_B)
     if code != 0 or "[PASS]" not in out:
         failures.append(f"Specialist production boundary check failed:\n{out}\n{err}")
     else:

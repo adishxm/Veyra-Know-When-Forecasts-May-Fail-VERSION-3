@@ -2,8 +2,15 @@ import subprocess
 import os
 import sys
 
-REPO_B = os.path.abspath("repos/repo_b")
-WORKSPACE = os.path.abspath(".")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    REPO_B = os.path.abspath(".")
+    WORKSPACE = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    REPO_B = os.path.abspath("repos/repo_b")
+    WORKSPACE = os.path.abspath(".")
+else:
+    REPO_B = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    WORKSPACE = REPO_B
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
@@ -31,7 +38,7 @@ def test_phase4():
     # 2. Compare Golden V3 outputs
     code, out, err = run(
         "python scripts/compare_golden_v3_outputs.py --baseline artifacts/golden_v3_before.json --candidate artifacts/golden_v3_after.json",
-        cwd=WORKSPACE
+        cwd=REPO_B
     )
     if code != 0:
         failures.append(f"Golden parity comparison failed:\n{out}\n{err}")

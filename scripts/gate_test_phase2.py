@@ -2,7 +2,12 @@ import os
 import subprocess
 import sys
 
-REPO_B = os.path.abspath("repos/repo_b")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    REPO_B = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    REPO_B = os.path.abspath("repos/repo_b")
+else:
+    REPO_B = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
@@ -56,7 +61,8 @@ def test_phase2():
         "manifests/import_denylist.csv",
         "manifests/code_owners.md"
     ]:
-        if not os.path.exists(mf) or os.path.getsize(mf) == 0:
+        target_mf = os.path.join(REPO_B, mf) if not os.path.exists(mf) else mf
+        if not os.path.exists(target_mf) or os.path.getsize(target_mf) == 0:
             failures.append(f"Missing governance manifest: {mf}")
         else:
             print(f"[PASS] Governance manifest verified: {mf}")

@@ -8,17 +8,32 @@ import subprocess
 import os
 import sys
 
-WORKSPACE = os.path.abspath(".")
-REPO_B = os.path.join(WORKSPACE, "repos", "repo_b")
+from pathlib import Path
+
+# Resolve repository and workspace roots dynamically
+CURRENT_DIR = Path.cwd()
+if (CURRENT_DIR / "backend").is_dir() and (CURRENT_DIR / "models").is_dir():
+    REPO_ROOT = CURRENT_DIR
+    WORKSPACE = CURRENT_DIR
+elif (CURRENT_DIR / "repos" / "repo_b" / "backend").is_dir():
+    REPO_ROOT = CURRENT_DIR / "repos" / "repo_b"
+    WORKSPACE = CURRENT_DIR
+else:
+    REPO_ROOT = Path(__file__).resolve().parent.parent
+    WORKSPACE = REPO_ROOT
+
+REPO_B_STR = str(REPO_ROOT)
+WORKSPACE_STR = str(WORKSPACE)
 
 def run(cmd, cwd=None):
-    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
+    target_cwd = cwd or REPO_B_STR
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=target_cwd)
     return res.returncode, res.stdout.strip(), res.stderr.strip()
 
 def check_artifact_integrity():
     print("[GATE G1/G3] Checking authoritative release manifest & artifact integrity...")
     cmd = "python scripts/verify_artifacts.py"
-    code, out, err = run(cmd, cwd=REPO_B)
+    code, out, err = run(cmd, cwd=REPO_B_STR)
     if code != 0:
         print(f"  FAILED: Artifact integrity check returned code {code}\n{out}\n{err}")
         return False
@@ -28,7 +43,7 @@ def check_artifact_integrity():
 def check_specialist_containment():
     print("[GATE G8] Checking specialist containment & scientific promotion boundaries...")
     cmd = "python scripts/check_production_specialists.py --fail-on-unvalidated-promotion"
-    code, out, err = run(cmd, cwd=WORKSPACE)
+    code, out, err = run(cmd, cwd=REPO_B_STR)
     if code != 0:
         print(f"  FAILED: Specialist boundary audit failed:\n{out}\n{err}")
         return False
@@ -37,8 +52,8 @@ def check_specialist_containment():
 
 def check_replay_separation():
     print("[GATE G11] Checking honest replay mode separation...")
-    code1, out1, err1 = run("python scripts/replay_historical.py --mode historical", cwd=WORKSPACE)
-    code2, out2, err2 = run("python scripts/replay_digital_twin.py --mode synthetic", cwd=WORKSPACE)
+    code1, out1, err1 = run("python scripts/replay_historical.py --mode historical", cwd=REPO_B_STR)
+    code2, out2, err2 = run("python scripts/replay_digital_twin.py --mode synthetic", cwd=REPO_B_STR)
     if code1 != 0 or code2 != 0:
         print(f"  FAILED: Replay checks failed:\n{out1}\n{out2}\n{err1}\n{err2}")
         return False
@@ -47,8 +62,8 @@ def check_replay_separation():
 
 def check_security_and_operations():
     print("[GATE G15] Checking security, secret hygiene & operations...")
-    # Check for potential exposed API keys or secrets in repo_b
-    code, out, _ = run('git grep -i -E "sk_live|private_key|aws_secret" -- ":!*.md" ":!*.json" ":!scripts/run_release_gates.py"', cwd=REPO_B)
+    # Check for potential exposed API keys or secrets in repository
+    code, out, _ = run('git grep -i -E "sk_live|private_key|aws_secret" -- ":!*.md" ":!*.json" ":!scripts/run_release_gates.py"', cwd=REPO_B_STR)
     if code == 0 and out.strip():
         print(f"  FAILED: Found potential hardcoded secret:\n{out}")
         return False
@@ -57,8 +72,10 @@ def check_security_and_operations():
 
 def check_rollback_governance():
     print("[GATE G16] Checking rollback documentation & release governance...")
-    rb_path = os.path.join(WORKSPACE, "manifests", "rollback_procedure.md")
-    if not os.path.exists(rb_path):
+    rb_path = REPO_ROOT / "manifests" / "rollback_procedure.md"
+    if not rb_path.is_file():
+        rb_path = WORKSPACE / "manifests" / "rollback_procedure.md"
+    if not rb_path.is_file():
         print(f"  FAILED: Missing rollback procedure at {rb_path}")
         return False
     with open(rb_path, "r", encoding="utf-8") as f:

@@ -2,8 +2,12 @@ import subprocess
 import os
 import sys
 
-REPO_B = os.path.abspath("repos/repo_b")
-WORKSPACE = os.path.abspath(".")
+if os.path.isdir("backend") and os.path.isdir("models"):
+    REPO_B = os.path.abspath(".")
+elif os.path.isdir("repos/repo_b"):
+    REPO_B = os.path.abspath("repos/repo_b")
+else:
+    REPO_B = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def run(cmd, cwd=None):
     res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
@@ -30,7 +34,7 @@ def test_phase5():
 
     # 2. Test Historical Replay CLI
     hist_cmd = "python scripts/replay_historical.py --mode historical --fixtures artifacts/immutable_forecast_truth_fixture"
-    code, out, err = run(hist_cmd, cwd=WORKSPACE)
+    code, out, err = run(hist_cmd, cwd=REPO_B)
     if code != 0 or "[PASS]" not in out:
         failures.append(f"Historical replay CLI failed:\n{out}\n{err}")
     else:
@@ -38,7 +42,7 @@ def test_phase5():
 
     # 3. Test Digital Twin Synthetic Replay CLI
     twin_cmd = "python scripts/replay_digital_twin.py --mode synthetic --fixtures artifacts/synthetic_twin_fixture"
-    code, out, err = run(twin_cmd, cwd=WORKSPACE)
+    code, out, err = run(twin_cmd, cwd=REPO_B)
     if code != 0 or "[NOTICE]" not in out or "[PASS]" not in out:
         failures.append(f"Synthetic digital twin CLI failed:\n{out}\n{err}")
     else:
@@ -46,7 +50,7 @@ def test_phase5():
 
     # 4. Verify invalid mode rejection
     invalid_cmd = "python scripts/replay_historical.py --mode synthetic"
-    code, out, err = run(invalid_cmd, cwd=WORKSPACE)
+    code, out, err = run(invalid_cmd, cwd=REPO_B)
     if code == 0:
         failures.append("Historical replay CLI unexpectedly accepted invalid mode 'synthetic'!")
     else:

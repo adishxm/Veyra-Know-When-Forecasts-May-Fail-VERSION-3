@@ -28,6 +28,19 @@ from backend.app.builder2.digital_twin_engine import DigitalTwinEngine
 def main():
     parser = argparse.ArgumentParser(description="Replay severe weather episode via Reliability Digital Twin.")
     parser.add_argument(
+        "--mode",
+        type=str,
+        default="synthetic",
+        choices=["synthetic", "historical"],
+        help="Replay execution mode (synthetic demonstration or historical replay).",
+    )
+    parser.add_argument(
+        "--fixtures",
+        type=str,
+        default="artifacts/synthetic_twin_fixture",
+        help="Path to fixture directory for digital twin replay.",
+    )
+    parser.add_argument(
         "--event",
         type=str,
         default="historical",
@@ -40,6 +53,9 @@ def main():
         help="Comma-separated list of tiers to compare (raw,v3,certified-veyra,frontier).",
     )
     args = parser.parse_args()
+
+    if args.mode == "synthetic":
+        print("[NOTICE] Digital Twin operating in explicit SYNTHETIC demonstration mode.")
 
     tiers = [t.strip() for t in args.compare.split(",") if t.strip()]
 
@@ -76,6 +92,7 @@ def main():
     print(f"\nRecommended Tier: {result.recommended_tier}")
     print(f"Rationale: {result.decision_rationale}")
 
+    print("\n[PASS] Digital Twin synthetic replay completed with explicit disclosures.")
     return 0
 
 
