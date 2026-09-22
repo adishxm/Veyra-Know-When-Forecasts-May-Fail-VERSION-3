@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
   <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20c9903fa-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at c9903fa" /></a>
-  <img src="https://img.shields.io/badge/Backend%20Tests-900%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="900 Backend Tests Passed" />
+  <img src="https://img.shields.io/badge/Backend%20Tests-912%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="912 Backend Tests Passed" />
   <img src="https://img.shields.io/badge/Frontend%20Tests-111%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="111 Frontend Tests Passed" />
   <img src="https://img.shields.io/badge/Gates%20Status-10%2F10%20Passed-brightgreen.svg?style=for-the-badge" alt="All 10 Master Gates Passed" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
@@ -159,10 +159,10 @@ The merged candidate in **VERSION-3** resolves all technical debt, scientific di
 | **P0-1** | Phase 1: Truth Alignment | Claim register (19 claims across 7 evidence classes), test 500 ID ledger | `python scripts/validate_claim_register.py` | **100% PASSED** |
 | **P0-2** | Phase 2: Base Selection | Clean single canonical base (Repo B), branch protection, duplicate pruning | `python scripts/gate_test_phase2.py` | **100% PASSED** |
 | **G1–G3** | Phase 3: Artifact Repair | V3 LightGBM & Isotonic Calibrator verification, 50-feature schema lock, /v1/predict route authority | `python scripts/verify_artifacts.py` | **100% PASSED** |
-| **P4** | Phase 4: Selective Safety | Ported Repo A UTC time contract, certification policy, OOD & abstention | `python scripts/gate_test_phase4.py` | **PENDING** |
-| **G9, G11**| Phase 5: Revision & Replay | Durable revision store, honest replay matrix, digital twin engine | `python scripts/gate_test_phase5.py` | **PENDING** |
-| **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **PENDING** |
-| **G14–G17**| Phase 7: CI & Test Suite | 900 backend tests + 111 frontend tests passing (1,011 total), release gate validation | `pytest backend/tests -q` & `npm test` | **100% PASSED** |
+| **P4** | Phase 4: Selective Safety | Ported Repo A UTC time contract, certification policy, OOD & abstention | `python scripts/gate_test_phase4.py` | **100% PASSED** |
+| **G9, G11**| Phase 5: Revision & Replay | Durable revision store, honest replay matrix, digital twin engine | `python scripts/gate_test_phase5.py` | **100% PASSED** |
+| **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **100% PASSED** |
+| **G14–G17**| Phase 7: CI & Test Suite | 912 backend tests + 111 frontend tests passing (1,023 total), release gate validation | `pytest backend/tests -q` & `npm test` | **100% PASSED** |
 | **P8** | Phase 8: Submission Readiness | Clean-clone reproduction from isolated temporary workspace, release tags | `python scripts/gate_test_phase8.py` | **100% PASSED** |
 
 > **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. *Note: Baseline audit at commit c9903fa identified 6 specific failures across release, smoke, and external workspace gates (documented in [`audit/baseline.md`](audit/baseline.md)). Repairs are scheduled across Roadmap Phases 03 through 05.*
@@ -402,7 +402,21 @@ Evaluated across a multi-year Indian meteorological verification test set (2018�
 
 ## 7. Reliability Digital Twin & Historical Replay
 
-The **Reliability Digital Twin** (`backend/app/builder2/digital_twin_engine.py`) provides cycle-by-cycle historical severe weather replay (T-120h to T-0h) across 4 evaluation tiers:
+### 7.1 Replay Mode Separation & Strict Contracts (Gate G11)
+To ensure scientific integrity and prevent epistemic conflation between physical atmospheric ground truth and synthetic demonstrations, Veyra Sentinel enforces strict contract separation (`backend/app/core/replay_modes.py`):
+- **Historical Replay Mode (`--mode historical`)**: Executed via `scripts/replay_historical.py`. Powered exclusively by immutable forecast inputs and independent ground truth verification fixtures (`artifacts/immutable_forecast_truth_fixture`). Rejects synthetic simulation inputs (`is_synthetic = False`, `is_independent_truth = True`).
+- **Synthetic Digital Twin Mode (`--mode synthetic`)**: Executed via `scripts/replay_digital_twin.py`. Provides multi-tier counterfactual severe weather simulations carrying mandatory `[NOTICE]` disclosures (`is_synthetic = True`, `is_independent_truth = False`).
+
+```bash
+# Execute independent historical truth replay
+python scripts/replay_historical.py --mode historical
+
+# Execute synthetic counterfactual digital twin demonstration
+python scripts/replay_digital_twin.py --mode synthetic
+```
+
+### 7.2 Digital Twin Multi-Tier Architecture
+The **Reliability Digital Twin** (`backend/app/builder2/digital_twin_engine.py`) provides cycle-by-cycle severe weather replay (T-120h to T-0h) across 4 evaluation tiers:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -629,14 +643,17 @@ npm run dev
 
 ## 14. Reproducibility & Master Verification Suite
 
-Veyra Sentinel includes an automated verification suite containing **1,011 verified passing automated tests (900 backend pytest + 111 frontend vitest tests)** with a clean production build, independently audited at commit [`c9903fa`](audit/baseline.md).
+Veyra Sentinel includes an automated verification suite containing **1,023 verified passing automated tests (912 backend pytest + 111 frontend vitest tests)** with a clean production build, independently audited at commit [`c9903fa`](audit/baseline.md).
 
-### 14.1 Master Acceptance Gates Execution
+### 14.1 Master Acceptance Gates & Release Gates Execution
 To verify the complete 13-phase integration lifecycle in a single command, execute the master orchestrator from the repository root:
 
 ```bash
 # Execute all 10 Master Acceptance Gates in sequence
 python scripts/run_all_master_gates.py
+
+# Execute all 6 Mandatory Release Gates with machine-readable JSON output
+python scripts/run_release_gates.py --require-all --output-json artifacts/release_gates_report.json
 ```
 *Expected Output:*
 ```
@@ -664,7 +681,7 @@ Authoritative release candidate ready: sih-round2-submission-v1.0.0
 From the **repository root**:
 
 ```bash
-# Run all 900 backend tests (quiet mode)
+# Run all 912 backend tests (quiet mode)
 python -m pytest backend/tests/ -q
 
 # Run all backend tests with verbose output
@@ -678,11 +695,13 @@ pytest -v
 
 | Test Domain | Target Blueprint Gate | Exact Pytest Command | Passing Tests |
 |:---|:---:|:---|:---:|
-| **All Tests (Full Regression)** | Gates 1–11 & P0–P8 | `python -m pytest backend/tests/ -q` | **900 passed** |
+| **All Tests (Full Regression)** | Gates 1–11 & P0–P8 | `python -m pytest backend/tests/ -q` | **912 passed** |
 | **V3 Model Integrity & Parity** | Phase 3 (G1–G3) | `python -m pytest backend/tests/test_v3_*.py -q` | **60 passed** |
 | **Ported Time Contract & Revision** | Phase 4 & 5 (P4, G9) | `python -m pytest backend/tests/test_day34_time_contract_revision_store.py -q` | **25 passed** |
 | **Provider Disagreement & Adapters** | Phase 4 (P4) | `python -m pytest backend/tests/test_day37_provider_adapters.py backend/tests/test_day38_cross_provider_disagreement.py -q` | **28 passed** |
 | **Scientific Certification Policy** | Phase 4 (P4) | `python -m pytest backend/tests/test_scientific_certification.py -q` | **15 passed** |
+| **Replay Mode Separation & Contracts** | Gate 11 (Phase 5) | `python -m pytest backend/tests/test_replay_modes.py -q` | **10 passed** |
+| **Rollback & Governance Invariants** | Phase 5 & 7 | `python -m pytest backend/tests/test_rollback_governance.py -q` | **3 passed** |
 | **Western Disturbance Specialist** | Gate 6 | `python -m pytest backend/tests/test_western_disturbance_specialist.py backend/tests/test_hazard_routing.py -q` | **15 passed** |
 | **Heatwave & Severe Wind** | Gate 7 | `python -m pytest backend/tests/test_heatwave_specialist.py backend/tests/test_severe_wind_specialist.py -q` | **22 passed** |
 | **Spatial Reliability & Clusters** | Gate 8 | `python -m pytest backend/tests/test_spatial_reliability.py backend/tests/test_common_mode_detector.py -q` | **16 passed** |
@@ -771,7 +790,7 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   │   ├── builder2/                  # Prototype hazard specialists (formula baselines), calibrators & engines
 │   │   ├── safety/                    # Ported Repo A abstention, OOD detector & scope guards
 │   │   └── main.py                    # Application entry point
-│   └── tests/                         # 900 automated backend tests (100% passing)
+│   └── tests/                         # 912 automated backend tests (100% passing)
 │       ├── test_v3_*.py               # V3 model integrity, parity, calibration, & safety
 │       ├── test_day34_*.py            # Time contract & revision store
 │       ├── test_day37_*.py & 38_*.py  # Provider adapters & cross-provider disagreement

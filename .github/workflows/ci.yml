@@ -82,7 +82,7 @@ jobs:
         run: npm run build
 
   release-gates:
-    name: Compulsory Scientific Release Gates
+    name: Compulsory Scientific Release Gates & Replay Separation
     needs: [backend-tests, artifact-verification, frontend-validation]
     runs-on: ubuntu-latest
     steps:
@@ -97,8 +97,30 @@ jobs:
       - name: Install Gate Runner Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install joblib scikit-learn lightgbm numpy pytest
+          pip install -r requirements.txt
+          pip install joblib scikit-learn lightgbm numpy pytest httpx
 
-      - name: Run All Release Gates (G1-G17)
+      - name: Verify Submission Smoke Across 9 States
         run: |
-          python scripts/run_release_gates.py --require-all
+          python scripts/run_submission_smoke.py
+
+      - name: Verify Replay Separation (Historical & Synthetic)
+        run: |
+          python scripts/replay_historical.py --mode historical
+          python scripts/replay_digital_twin.py --mode synthetic
+
+      - name: Validate Master Claim Register (Gate G17)
+        run: |
+          python scripts/validate_claim_register.py --input manifests/claim_register.csv
+
+      - name: Run All Compulsory Release Gates (G1-G17)
+        run: |
+          python scripts/run_release_gates.py --require-all --output-json artifacts/release_gates_report.json
+
+      - name: Upload Release Gates Artifact Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gates-report
+          path: artifacts/release_gates_report.json
+          if-no-files-found: ignore

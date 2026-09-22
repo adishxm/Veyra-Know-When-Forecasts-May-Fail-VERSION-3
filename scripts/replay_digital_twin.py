@@ -1,28 +1,33 @@
-#!/usr/bin/env python3
-"""Reliability Digital Twin Historical Episode Replay (Gate 11 / Phase L).
+"""Replay severe weather episode via Reliability Digital Twin (Gate G11 / Phase 5).
 
-Replays severe weather episodes cycle-by-cycle to evaluate lead-time warning advantage,
-calibration, and operational utility across 4 tiers:
-  1. raw (uncalibrated NWP ensemble)
-  2. v3 (baseline certified model)
-  3. certified-veyra (full certified hazard specialist suite)
-  4. frontier (experimental challenger, marked is_simulation: true)
+Demonstrates comparative reliability tracking across Raw Ensemble, V3 Challenger,
+Certified Veyra, and Frontier AI models over severe atmospheric events.
 
-Usage:
-    python scripts/replay_digital_twin.py --event historical --compare raw,v3,certified-veyra,frontier
+Operating in explicit SYNTHETIC demonstration mode unless grounded in physical truth.
 """
-
 import argparse
+from datetime import datetime, timezone
 import json
-import sys
 from pathlib import Path
+import sys
 
-# Ensure SIH26079-RII root is in sys.path
-root_dir = Path(__file__).resolve().parent.parent
-if str(root_dir) not in sys.path:
-    sys.path.insert(0, str(root_dir))
+# Ensure repository root is in sys.path dynamically
+CURRENT_DIR = Path.cwd()
+if (CURRENT_DIR / "backend").is_dir():
+    REPO_ROOT = CURRENT_DIR
+elif (CURRENT_DIR / "repos" / "repo_b" / "backend").is_dir():
+    REPO_ROOT = CURRENT_DIR / "repos" / "repo_b"
+else:
+    REPO_ROOT = Path(__file__).resolve().parent.parent
+
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from backend.app.builder2.digital_twin_engine import DigitalTwinEngine
+try:
+    from backend.app.core.replay_modes import ReplayMode, create_synthetic_replay_record
+except ImportError:
+    create_synthetic_replay_record = None
 
 
 def main():
@@ -52,6 +57,12 @@ def main():
         default="raw,v3,certified-veyra,frontier",
         help="Comma-separated list of tiers to compare (raw,v3,certified-veyra,frontier).",
     )
+    parser.add_argument(
+        "--output-json",
+        type=str,
+        default=None,
+        help="Optional path to export machine-readable JSON replay contract report.",
+    )
     args = parser.parse_args()
 
     if args.mode == "synthetic":
@@ -59,7 +70,7 @@ def main():
 
     tiers = [t.strip() for t in args.compare.split(",") if t.strip()]
 
-    print(f"=== Veyra Reliability Digital Twin Replay (Gate 11 / Phase L) ===")
+    print(f"=== Veyra Reliability Digital Twin Replay (Gate 11 / Phase 5) ===")
     print(f"Event: {args.event}")
     print(f"Compared Tiers: {tiers}\n")
 
@@ -91,6 +102,36 @@ def main():
 
     print(f"\nRecommended Tier: {result.recommended_tier}")
     print(f"Rationale: {result.decision_rationale}")
+
+    # Build provenance record
+    if create_synthetic_replay_record:
+        contract = create_synthetic_replay_record(
+            provenance="Reliability Digital Twin Scenario Generator (Simulated Atmospheric Stress)",
+            scenario_id=f"TWIN-{args.event.upper()}",
+            disclosure_notice="[NOTICE] Digital Twin operating in explicit SYNTHETIC demonstration mode.",
+        )
+        record = contract.to_dict()
+    else:
+        record = {
+            "mode": "synthetic",
+            "provenance": "Reliability Digital Twin Scenario Generator (Simulated Atmospheric Stress)",
+            "is_synthetic": True,
+            "is_independent_truth": False,
+            "scenario_id": f"TWIN-{args.event.upper()}",
+            "disclosure_notice": "[NOTICE] Digital Twin operating in explicit SYNTHETIC demonstration mode.",
+        }
+
+    record["recommended_tier"] = result.recommended_tier
+    record["total_cycles"] = len(result.cycles)
+
+    if args.output_json:
+        out_path = Path(args.output_json)
+        if not out_path.is_absolute():
+            out_path = REPO_ROOT / out_path
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(record, f, indent=2)
+        print(f"Digital Twin replay contract exported to: {out_path}")
 
     print("\n[PASS] Digital Twin synthetic replay completed with explicit disclosures.")
     return 0
