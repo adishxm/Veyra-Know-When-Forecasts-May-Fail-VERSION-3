@@ -11,10 +11,12 @@ Extracts features derivable strictly at forecast/issue time, enforcing the invar
 7. Quality and safety signals: missingness, staleness, composite quality score (D6).
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import math
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from backend.app.data.training_dataset import HistoricalTrainingRow
@@ -27,7 +29,9 @@ from backend.app.ml.feature_contract import (
 )
 from backend.app.ml.regime_features import extract_regime_features
 from backend.app.schemas.weather import CanonicalForecastRecord
-from backend.app.services.analog_service import HistoricalAnalogService
+
+if TYPE_CHECKING:
+    from backend.app.services.analog_service import HistoricalAnalogService
 
 # Backward-compatibility alias
 FORBIDDEN_LEAKAGE_FIELDS = FORBIDDEN_GROUND_TRUTH_FIELDS
@@ -239,7 +243,11 @@ class InferenceSafeFeatureExtractor:
     """Extracts raw numerical predictors from forecast or historical records."""
 
     def __init__(self, analog_service: Optional[HistoricalAnalogService] = None):
-        self.analog_service = analog_service or HistoricalAnalogService()
+        if analog_service is None:
+            from backend.app.services.analog_service import HistoricalAnalogService
+            self.analog_service = HistoricalAnalogService()
+        else:
+            self.analog_service = analog_service
 
     @staticmethod
     def assert_no_leakage(data_dict: dict[str, Any]) -> None:

@@ -1,14 +1,16 @@
-"""Model Persistence and Artifact Management for Veyra ML Pipelines."""
+from __future__ import annotations
+
 import json
 import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 import joblib
 
-from backend.app.ml.baseline_model import LogisticRegressionBustModel
-from backend.app.ml.evaluation import EvaluationReport
-from backend.app.ml.features import FeaturePipeline
+if TYPE_CHECKING:
+    from backend.app.ml.baseline_model import LogisticRegressionBustModel
+    from backend.app.ml.evaluation import EvaluationReport
+    from backend.app.ml.features import FeaturePipeline
 
 
 @dataclass

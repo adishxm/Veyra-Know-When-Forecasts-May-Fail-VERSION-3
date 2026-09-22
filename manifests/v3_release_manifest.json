@@ -1,6 +1,6 @@
 {
   "release_id": "veyra-v3.0.0-release-candidate",
-  "manifest_schema_version": "v1.0.0",
+  "manifest_schema_version": "v1.1.0",
   "generation_timestamp": "2026-09-22T00:15:00Z",
   "git_provenance": {
     "base_commit_sha": "82eded8194151e37fb9b3eecf273010dc62d7b29",
@@ -24,6 +24,14 @@
     "feature_schema_version": "veyra-50-features-v3.0",
     "feature_names_reference": "models/v3/feature_names.json",
     "sha256": "265cffbbd157a2b8b8b46d3702438050980043b5ed3a6a646a7969cdb9853355"
+  },
+  "route_authority": "/v1/predict",
+  "fallback_policy": "safe_abstention",
+  "environment_pins": {
+    "python": "3.10+",
+    "scikit_learn": "1.7.2",
+    "lightgbm": "4.7.0",
+    "joblib": "1.5.3"
   },
   "scientific_policies": {
     "certification_policy_version": "v3.0.0-frozen-benchmark",

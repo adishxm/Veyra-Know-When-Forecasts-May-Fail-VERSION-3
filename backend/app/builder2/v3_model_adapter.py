@@ -267,11 +267,13 @@ class Builder2V3ModelAdapter(BaseModelService):
             )
 
         # 3. Construct DataFrame with exact 50 ordered features
-        if feature_result.features and len(feature_result.features) >= 50:
+        if isinstance(feature_result.features, pd.DataFrame):
+            df_features = feature_result.features.copy()
+        elif isinstance(feature_result.features, dict) and len(feature_result.features) >= 50:
             df_features = pd.DataFrame([feature_result.features])
         elif feature_result.metadata and feature_result.metadata.get("feature_matrix_rows"):
             df_features = pd.DataFrame(feature_result.metadata["feature_matrix_rows"])
-        elif feature_result.features:
+        elif isinstance(feature_result.features, dict) and bool(feature_result.features):
             df_features = pd.DataFrame([feature_result.features])
         else:
             return ModelResult(
