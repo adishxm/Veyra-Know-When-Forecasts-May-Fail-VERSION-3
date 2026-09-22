@@ -35,8 +35,8 @@ export const App: React.FC = () => {
 
   // Form State: Initialize to first benchmark station (Delhi)
   const [location, setLocation] = useState<string>(BENCHMARK_LOCATIONS[0].name);
-  const [lat, setLat] = useState<number>(BENCHMARK_LOCATIONS[0].lat);
-  const [lon, setLon] = useState<number>(BENCHMARK_LOCATIONS[0].lon);
+  const [lat, setLat] = useState<number | null>(BENCHMARK_LOCATIONS[0].lat);
+  const [lon, setLon] = useState<number | null>(BENCHMARK_LOCATIONS[0].lon);
   const [variable, setVariable] = useState<string>('temperature_2m');
   const [mode, setMode] = useState<DashboardMode>('standard_7d');
 
@@ -78,7 +78,7 @@ export const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Clear stale results when target parameters change
+  // Clear stale results and unbind coordinates when target parameters change
   const handleLocationChange = (newLoc: string) => {
     setLocation(newLoc);
     setDashboardData(null);
@@ -107,8 +107,11 @@ export const App: React.FC = () => {
         ) {
           setLat(parsedLat);
           setLon(parsedLon);
+          return;
         }
       }
+      setLat(null);
+      setLon(null);
     }
   };
 
@@ -147,12 +150,17 @@ export const App: React.FC = () => {
       if (apiErr) {
         setError(apiErr.message || apiErr.error || 'Failed to communicate with Veyra backend.');
         setDashboardData(null);
+        setLat(null);
+        setLon(null);
       } else if (data) {
         setDashboardData(data);
-        // If location context resolved coordinates, update map center
+        // If location context resolved coordinates, update map center; otherwise clear coordinates
         if (data.location?.latitude != null && data.location?.longitude != null) {
           setLat(data.location.latitude);
           setLon(data.location.longitude);
+        } else {
+          setLat(null);
+          setLon(null);
         }
         // Default selected lead hours to peak risk lead hours or canonical 24h
         if (data.timeline && data.timeline.length > 0) {
@@ -163,6 +171,8 @@ export const App: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Unexpected network failure while contacting Veyra Sentinel.');
       setDashboardData(null);
+      setLat(null);
+      setLon(null);
     } finally {
       setLoading(false);
     }

@@ -33,6 +33,15 @@ describe('Day 24 Probabilistic Intelligence UI Tests', () => {
     expect(screen.getByText(/Calibrated Bust Probability/i)).toBeInTheDocument();
   });
 
+  it('renders heuristic certainty and ambiguity labels with operational trust', () => {
+    render(<PredictionResult prediction={mockPrediction} />);
+    expect(screen.getByTitle(/Probability Separation Score/i)).toBeInTheDocument();
+    expect(screen.getByTitle(/Decision Boundary Ambiguity/i)).toBeInTheDocument();
+    expect(screen.getByTitle(/Nominal Pipeline Integrity/i)).toBeInTheDocument();
+    expect(screen.getByText(/Certainty:\s*70\.0%/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ambiguity:\s*30\.0%/i)).toBeInTheDocument();
+  });
+
   it('renders operational trust banner and conformal certainty badges', () => {
     render(<PredictionResult prediction={mockPrediction} />);
     expect(screen.getByText('Nominal Operational State')).toBeInTheDocument();

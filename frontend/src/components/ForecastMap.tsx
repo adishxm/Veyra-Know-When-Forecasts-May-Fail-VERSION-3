@@ -150,8 +150,8 @@ function getRiskBandColor(band: string): string {
 }
 
 interface ForecastMapProps {
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   label?: string;
   riskMapData?: RiskMapItem[];
   centroidErrorKm?: number;
@@ -159,16 +159,22 @@ interface ForecastMapProps {
 }
 
 export const ForecastMap: React.FC<ForecastMapProps> = ({
-  latitude = 28.6139,
-  longitude = 77.2090,
+  latitude,
+  longitude,
   label = 'Location',
   riskMapData: _riskMapData,
   centroidErrorKm = 42.5,
   highlightedRiskBand: _highlightedRiskBand,
 }) => {
-  const validLat = typeof latitude === 'number' && !isNaN(latitude) ? latitude : 28.6139;
-  const validLon = typeof longitude === 'number' && !isNaN(longitude) ? longitude : 77.2090;
-  const position: [number, number] = [validLat, validLon];
+  const hasValidCoordinates =
+    typeof latitude === 'number' &&
+    typeof longitude === 'number' &&
+    !isNaN(latitude) &&
+    !isNaN(longitude);
+
+  const centerLat = hasValidCoordinates ? latitude : 28.6139;
+  const centerLon = hasValidCoordinates ? longitude : 77.2090;
+  const position: [number, number] = [centerLat, centerLon];
 
   // Layer toggles
   const [showRiskPolygons, setShowRiskPolygons] = useState(true);
@@ -291,45 +297,49 @@ export const ForecastMap: React.FC<ForecastMapProps> = ({
               );
             })}
 
-          {/* Target Location Marker */}
-          <Marker position={position}>
-            <Popup>
-              <div style={{ fontWeight: 700, color: 'var(--noaa-dark-blue)' }}>{label}</div>
-              <div style={{ fontSize: '0.8rem', color: '#555', marginTop: '2px' }}>
-                [{validLat.toFixed(4)}°N, {validLon.toFixed(4)}°E]
-              </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--noaa-accent)', marginTop: '4px' }}>
-                Active Sentinel Atmospheric Target
-              </div>
-            </Popup>
-          </Marker>
+          {/* Target Location Marker & Centroid Radius */}
+          {hasValidCoordinates && (
+            <>
+              <Marker position={position}>
+                <Popup>
+                  <div style={{ fontWeight: 700, color: 'var(--noaa-dark-blue)' }}>{label}</div>
+                  <div style={{ fontSize: '0.8rem', color: '#555', marginTop: '2px' }}>
+                    [{centerLat.toFixed(4)}°N, {centerLon.toFixed(4)}°E]
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--noaa-accent)', marginTop: '4px' }}>
+                    Active Sentinel Atmospheric Target
+                  </div>
+                </Popup>
+              </Marker>
 
-          {/* Centroid Error Radius Circle */}
-          {showCentroidRadius && (
-            <Circle
-              center={position}
-              radius={centroidErrorKm * 1000} // meters
-              pathOptions={{
-                color: '#ea580c',
-                fillColor: '#ea580c',
-                fillOpacity: 0.12,
-                weight: 1.5,
-                dashArray: '5, 5',
-              }}
-            >
-              <Popup>
-                <div style={{ fontSize: '0.8rem' }}>
-                  <strong>Centroid Displacement Uncertainty</strong>
-                  <div>Radius: {centroidErrorKm} km (J4 spatial verification benchmark)</div>
-                </div>
-              </Popup>
-            </Circle>
+              {/* Centroid Error Radius Circle */}
+              {showCentroidRadius && (
+                <Circle
+                  center={position}
+                  radius={centroidErrorKm * 1000} // meters
+                  pathOptions={{
+                    color: '#ea580c',
+                    fillColor: '#ea580c',
+                    fillOpacity: 0.12,
+                    weight: 1.5,
+                    dashArray: '5, 5',
+                  }}
+                >
+                  <Popup>
+                    <div style={{ fontSize: '0.8rem' }}>
+                      <strong>Centroid Displacement Uncertainty</strong>
+                      <div>Radius: {centroidErrorKm} km (J4 spatial verification benchmark)</div>
+                    </div>
+                  </Popup>
+                </Circle>
+              )}
+            </>
           )}
 
           {/* 25 Canonical Stations Markers */}
           {showStations &&
             BENCHMARK_LOCATIONS.map((loc) => {
-              if (Math.abs(loc.lat - validLat) < 0.05 && Math.abs(loc.lon - validLon) < 0.05) {
+              if (hasValidCoordinates && Math.abs(loc.lat - centerLat) < 0.05 && Math.abs(loc.lon - centerLon) < 0.05) {
                 return null; // Already shown as active target
               }
               return (
@@ -357,7 +367,7 @@ export const ForecastMap: React.FC<ForecastMapProps> = ({
               );
             })}
 
-          <RecenterMap lat={validLat} lng={validLon} />
+          <RecenterMap lat={centerLat} lng={centerLon} />
           <MapResizer />
         </MapContainer>
       </div>

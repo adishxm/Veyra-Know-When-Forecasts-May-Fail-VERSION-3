@@ -111,7 +111,7 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }
     abstain,
     reason_codes,
     model_version,
-    confidence_index: _confidence_index,
+    confidence_index,
     uncertainty_pct,
     ood_score,
     lead_hours,
@@ -132,6 +132,7 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }
       {/* 1. Authoritative Trust Banner per §17, §20 */}
       <div
         role="alert"
+        title="Operational Trust: Nominal Pipeline Integrity (valid location, QC passed, model loaded)"
         style={{
           background: banner.bg,
           border: `1.5px solid ${banner.border}`,
@@ -259,6 +260,26 @@ export const PredictionResult: React.FC<PredictionResultProps> = ({ prediction }
         {uncertainty_pct != null && !isAbstained && (
           <div className="version-badge">
             <span>±{uncertainty_pct.toFixed(1)}% (90% Conformal)</span>
+          </div>
+        )}
+
+        {/* Heuristic Decision Certainty Badge */}
+        {confidence_index !== null && confidence_index !== undefined && !isAbstained && (
+          <div
+            className="version-badge"
+            title="Probability Separation Score: 2*|P - 0.5| (heuristic distance from boundary ambiguity; not a formal statistical confidence interval)"
+          >
+            <span>Certainty: {(confidence_index * 100).toFixed(1)}%</span>
+          </div>
+        )}
+
+        {/* Boundary Ambiguity Badge */}
+        {uncertainty_pct !== null && uncertainty_pct !== undefined && !isAbstained && (
+          <div
+            className="version-badge"
+            title="Decision Boundary Ambiguity: proximity to 0.5 threshold (not a formal predictive uncertainty interval)"
+          >
+            <span>Ambiguity: {uncertainty_pct.toFixed(1)}%</span>
           </div>
         )}
 
