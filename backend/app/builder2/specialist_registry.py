@@ -49,6 +49,9 @@ class SpecialistRegistration:
     target_definition: Optional[str] = None
     data_split_info: Optional[str] = None
     model_sha256: Optional[str] = None
+    target_manifest_path: Optional[str] = None
+    bust_formula: Optional[str] = None
+    evidence_tier: str = "FORMULA_BASELINE"
 
 
 @dataclass
@@ -110,12 +113,15 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         hazard_type="precipitation",
         is_formula=True,
         has_trained_artifact=False,
-        evidence_package_path=None,
+        evidence_package_path="docs/science-evidence/pilot_evidence_package_precipitation.md",
         promotion_gate_status="UNPROMOTED_FORMULA",
         reviewer_signoff=None,
         target_definition="Forecast bust for heavy rainfall (>= 64.5mm/24h) and amount error",
         data_split_info="NOT_TRAINED (deterministic heuristic rules)",
         model_sha256=None,
+        target_manifest_path="data/precipitation_target_manifest.json",
+        bust_formula="|F_24h - O_24h| > 25.0 mm OR (F_24h >= 64.5 AND O_24h < 64.5) OR (F_24h < 64.5 AND O_24h >= 64.5)",
+        evidence_tier="FORMULA_BASELINE",
     ),
     "cyclone": SpecialistRegistration(
         name="Cyclone Reliability Specialist",
@@ -131,6 +137,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="NWP track displacement (>150km) and intensity bust (>20 knots)",
         data_split_info="NOT_TRAINED (deterministic heuristic rules)",
         model_sha256=None,
+        target_manifest_path="data/cyclone_target_manifest.json",
+        bust_formula="|Track_Error_48h| > 120km OR |Intensity_Error_48h| > 15 knots",
+        evidence_tier="FORMULA_BASELINE",
     ),
     "monsoon": SpecialistRegistration(
         name="Monsoon/LPS Reliability Specialist",
@@ -146,6 +155,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Low pressure system track displacement and moisture flux error",
         data_split_info="NOT_TRAINED (deterministic heuristic rules)",
         model_sha256=None,
+        target_manifest_path="data/monsoon_target_manifest.json",
+        bust_formula="Low pressure center displacement > 150km OR Swath error > 50mm",
+        evidence_tier="FORMULA_BASELINE",
     ),
     "western_disturbance": SpecialistRegistration(
         name="Western Disturbance Specialist",
@@ -161,6 +173,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="WD orographic precipitation and trough timing error",
         data_split_info="NOT_TRAINED (deterministic heuristic rules)",
         model_sha256=None,
+        target_manifest_path="data/western_disturbance_target_manifest.json",
+        bust_formula="Precip error > 20mm OR Snow equiv error > 15cm OR Timing error > 6h",
+        evidence_tier="FORMULA_BASELINE",
     ),
     "heatwave": SpecialistRegistration(
         name="Heatwave Reliability Specialist",
@@ -176,6 +191,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Maximum temperature forecast error >= 3.0C during heatwave conditions",
         data_split_info="NOT_TRAINED (deterministic heuristic rules)",
         model_sha256=None,
+        target_manifest_path="data/heatwave_target_manifest.json",
+        bust_formula="|Tmax_forecast - Tmax_observed| >= 3.0C OR threshold breach > 45C",
+        evidence_tier="FORMULA_BASELINE",
     ),
     "spatial_reliability": SpecialistRegistration(
         name="Spatial Reliability Engine",
@@ -191,6 +209,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Spatial displacement error vectors",
         data_split_info="EXPERIMENTAL_SYNTHETIC",
         model_sha256=None,
+        target_manifest_path="data/spatial_target_manifest.json",
+        bust_formula="Centroid displacement > 75km OR Swath overlap IoU < 0.30",
+        evidence_tier="EXPERIMENTAL_HEURISTIC",
     ),
     "compound_hazard": SpecialistRegistration(
         name="Compound Hazard Engine",
@@ -206,6 +227,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Joint co-occurrence of multiple hazard thresholds",
         data_split_info="EXPERIMENTAL_HEURISTIC",
         model_sha256=None,
+        target_manifest_path=None,
+        bust_formula="Joint co-occurrence failure across 2+ simultaneous hazard thresholds",
+        evidence_tier="EXPERIMENTAL_HEURISTIC",
     ),
     "common_mode": SpecialistRegistration(
         name="Common Mode Detector",
@@ -221,6 +245,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Multi-model simultaneous failure detection",
         data_split_info="EXPERIMENTAL_HEURISTIC",
         model_sha256=None,
+        target_manifest_path=None,
+        bust_formula="Multi-model simultaneous failure across 2+ NWP ensemble members",
+        evidence_tier="EXPERIMENTAL_HEURISTIC",
     ),
     "cross_system": SpecialistRegistration(
         name="Cross-System Transfer Engine",
@@ -236,6 +263,9 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Transferability of failure motifs between NWP systems",
         data_split_info="EXPERIMENTAL_HEURISTIC",
         model_sha256=None,
+        target_manifest_path=None,
+        bust_formula="Delta Brier > 0.035 under zero-shot transfer across aligned NWP systems",
+        evidence_tier="EXPERIMENTAL_HEURISTIC",
     ),
     "severe_wind": SpecialistRegistration(
         name="Severe Wind Specialist",
@@ -251,8 +281,33 @@ SPECIALIST_REGISTRY: Dict[str, SpecialistRegistration] = {
         target_definition="Surface wind gust bust >= 15 m/s",
         data_split_info="MISSING_FUTURE_BY_DESIGN",
         model_sha256=None,
+        target_manifest_path=None,
+        bust_formula="Surface wind gust bust >= 15 m/s",
+        evidence_tier="QUARANTINED",
     ),
 }
+
+
+def export_specialist_evidence_ledger() -> List[Dict[str, Any]]:
+    """Export machine-readable specialist evidence ledger matching docs/science-evidence/specialist_evidence_ledger.csv."""
+    rows = []
+    for key, spec in SPECIALIST_REGISTRY.items():
+        rows.append({
+            "specialist_id": key,
+            "name": spec.name,
+            "hazard_family": spec.hazard_type,
+            "status": spec.status.value,
+            "evidence_tier": spec.evidence_tier,
+            "is_formula": spec.is_formula,
+            "has_trained_artifact": spec.has_trained_artifact,
+            "target_definition": spec.target_definition or "N/A",
+            "bust_formula": spec.bust_formula or "N/A",
+            "target_manifest": spec.target_manifest_path or "N/A",
+            "evidence_package": spec.evidence_package_path or "N/A",
+            "promotion_gate_status": spec.promotion_gate_status or "N/A",
+            "active_in_production": is_specialist_active_in_production(key),
+        })
+    return rows
 
 
 def get_specialist(name: str) -> Optional[SpecialistRegistration]:
