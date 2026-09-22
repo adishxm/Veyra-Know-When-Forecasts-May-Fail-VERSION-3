@@ -5,11 +5,12 @@
   <img src="https://img.shields.io/badge/SIH-2026-orange.svg?style=for-the-badge&logo=target" alt="SIH 2026" />
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
-  <img src="https://img.shields.io/badge/Tests-996%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="996 Tests Passing (888 Backend + 108 Frontend)" />
-  <img src="https://img.shields.io/badge/Master%20Gates-10%2F10%20Passed%20(100%25)-success.svg?style=for-the-badge&logo=checkmarx" alt="Master Gates 10/10 Passed" />
+  <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20c9903fa-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at c9903fa" /></a>
+  <img src="https://img.shields.io/badge/Backend%20Tests-891%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="891 Backend Tests Passed" />
+  <img src="https://img.shields.io/badge/Frontend%20Tests-111%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="111 Frontend Tests Passed" />
+  <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Gates%20Status-Failures%20listed%20in%20audit%2Fbaseline.md-yellow.svg?style=for-the-badge" alt="Failures listed in audit/baseline.md" /></a>
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%206-61dafb.svg?style=for-the-badge&logo=react" alt="React 19" />
-  <img src="https://img.shields.io/badge/Architecture-Round--2%20Consolidated-purple.svg?style=for-the-badge" alt="Round-2 Consolidated" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License" />
 </p>
 
