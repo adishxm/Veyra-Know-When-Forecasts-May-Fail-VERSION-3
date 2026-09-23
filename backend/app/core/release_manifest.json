@@ -1,11 +1,20 @@
 {
   "release_id": "veyra-v3.0.0-release-candidate",
   "manifest_schema_version": "v1.1.0",
-  "generation_timestamp": "2026-09-22T00:15:00Z",
+  "generation_timestamp": "2026-09-23T15:30:00Z",
   "git_provenance": {
     "base_commit_sha": "82eded8194151e37fb9b3eecf273010dc62d7b29",
+    "candidate_commit_sha": "6c1e8453d0f2fc12fc1b12f813858430cf5ebda4",
     "integration_branch": "integration/sih-round2-selective-merge",
     "strategy": "base_commit_provenance"
+  },
+  "verification_metrics": {
+    "backend_tests_passed": 952,
+    "frontend_tests_passed": 111,
+    "total_tests_passed": 1063,
+    "acceptance_gates_passed": 10,
+    "total_acceptance_gates": 10,
+    "gate_pass_rate": "100%"
   },
   "model_artifact": {
     "path": "models/v3/lightgbm_v3_challenger.joblib",

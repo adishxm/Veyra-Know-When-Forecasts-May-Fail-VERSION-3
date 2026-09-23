@@ -1,45 +1,45 @@
 {
-  "timestamp": "2026-09-22T18:25:00.893955+00:00",
+  "timestamp": "2026-09-23T10:37:38.025349+00:00",
   "release_approved": true,
   "total_gates": 6,
   "passed_gates": 6,
   "failed_gates": 0,
-  "total_duration_seconds": 13.28,
+  "total_duration_seconds": 10.381,
   "gates": [
     {
       "name": "Artifact Integrity (G1/G3)",
       "passed": true,
-      "elapsed_seconds": 3.203,
+      "elapsed_seconds": 2.113,
       "error": null
     },
     {
       "name": "Specialist Containment (G8)",
       "passed": true,
-      "elapsed_seconds": 4.151,
+      "elapsed_seconds": 3.477,
       "error": null
     },
     {
       "name": "Replay Separation (G11)",
       "passed": true,
-      "elapsed_seconds": 5.554,
+      "elapsed_seconds": 4.471,
       "error": null
     },
     {
       "name": "Security & Operations (G15)",
       "passed": true,
-      "elapsed_seconds": 0.223,
+      "elapsed_seconds": 0.156,
       "error": null
     },
     {
       "name": "Rollback Governance (G16)",
       "passed": true,
-      "elapsed_seconds": 0.002,
+      "elapsed_seconds": 0.0,
       "error": null
     },
     {
       "name": "Claim Register Governance (G17)",
       "passed": true,
-      "elapsed_seconds": 0.148,
+      "elapsed_seconds": 0.164,
       "error": null
     }
   ]

@@ -6,6 +6,7 @@
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
   <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20c9903fa-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at c9903fa" /></a>
+  <a href="docs/release/README.md"><img src="https://img.shields.io/badge/Release%20Candidate-6c1e845-purple.svg?style=for-the-badge&logo=git" alt="Release candidate at 6c1e845" /></a>
   <img src="https://img.shields.io/badge/Backend%20Tests-952%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="952 Backend Tests Passed" />
   <img src="https://img.shields.io/badge/Frontend%20Tests-111%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="111 Frontend Tests Passed" />
   <img src="https://img.shields.io/badge/Gates%20Status-10%2F10%20Passed-brightgreen.svg?style=for-the-badge" alt="All 10 Master Gates Passed" />
@@ -164,8 +165,9 @@ The merged candidate in **VERSION-3** resolves all technical debt, scientific di
 | **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **100% PASSED** |
 | **G14–G17**| Phase 7: CI & Test Suite | 932 backend tests + 111 frontend tests passing (1,043 total), 500-test ledger (376 passed, 124 N/A), release gate validation | `pytest backend/tests -q` & `npm test` | **100% PASSED** |
 | **P8** | Phase 8: Demo & Operational Hardening | Fixture-scoped Builder-2 fallback, trust-state contract alignment, UI data provenance badges, 952 backend + 111 frontend tests (1,063 total) | `python scripts/gate_test_phase8.py` | **100% PASSED** |
+| **P9** | Phase 9: Final Submission Freeze | Candidate SHA freeze, 7 evidence classes verified, clean-clone reproduction, dedicated Phase 09 gate | `python scripts/gate_test_phase9.py` | **100% PASSED** |
 
-> **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. *Note: Baseline audit at commit c9903fa identified 6 specific failures across release, smoke, and external workspace gates (documented in [`audit/baseline.md`](audit/baseline.md)). Repairs are scheduled across Roadmap Phases 03 through 05.*
+> **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. With Phase 09 completion, all 10 acceptance gates pass with 100% success rate, certifying the authoritative submission candidate (documented in [`docs/release/README.md`](docs/release/README.md) and [`docs/release/submission_audit_report.md`](docs/release/submission_audit_report.md)).
 
 ---
 
@@ -703,7 +705,7 @@ Authoritative release candidate ready: sih-round2-submission-v1.0.0
 From the **repository root**:
 
 ```bash
-# Run all 932 backend tests (quiet mode)
+# Run all 952 backend tests (quiet mode)
 python -m pytest backend/tests/ -q
 
 # Run all backend tests with verbose output
@@ -717,7 +719,7 @@ pytest -v
 
 | Test Domain | Target Blueprint Gate | Exact Pytest Command | Passing Tests |
 |:---|:---:|:---|:---:|
-| **All Tests (Full Regression)** | Gates 1–11 & P0–P8 | `python -m pytest backend/tests/ -q` | **932 passed** |
+| **All Tests (Full Regression)** | Gates 1–11 & P0–P9 | `python -m pytest backend/tests/ -q` | **952 passed** |
 | **V3 Model Integrity & Parity** | Phase 3 (G1–G3) | `python -m pytest backend/tests/test_v3_*.py -q` | **60 passed** |
 | **Ported Time Contract & Revision** | Phase 4 & 5 (P4, G9) | `python -m pytest backend/tests/test_day34_time_contract_revision_store.py -q` | **25 passed** |
 | **Provider Disagreement & Adapters** | Phase 4 (P4) | `python -m pytest backend/tests/test_day37_provider_adapters.py backend/tests/test_day38_cross_provider_disagreement.py -q` | **28 passed** |
@@ -764,9 +766,16 @@ python scripts/clean_clone_reproduction.py
 python scripts/compare_golden_v3_outputs.py --baseline artifacts/golden_v3_before.json --candidate artifacts/golden_v3_after.json
 ```
 
+### 14.6 Authoritative Submission Evidence Package & Reviewer Audit
+
+For independent judges and scientific reviewers, the complete submission dossier is archived in [`docs/release/`](docs/release/):
+- **Master Release Package**: [`docs/release/README.md`](docs/release/README.md) — Comprehensive inventory of frozen model weights, calibrator hashes, 50-feature schema, replay separation matrix, and fast rollback runbook.
+- **Independent Reviewer Audit Report**: [`docs/release/submission_audit_report.md`](docs/release/submission_audit_report.md) — Audits every README metric against empirical test output, zero data leakage confirmation, certified scope boundaries (25 benchmark stations, $\le 240\text{h}$), and specialist containment rules.
+- **Dedicated Phase 09 Master Submission Gate**: `python scripts/gate_test_phase9.py` — Runs the full 12-stage validation across artifacts, claim register, 500-test ledger, release gates, all 5 smoke tests, 9 trust states, and clean-clone reproduction.
+
 ---
 
-### 14.5 Common Troubleshooting & FAQs
+### 14.7 Common Troubleshooting & FAQs
 
 #### Q1: `ModuleNotFoundError: No module named 'backend'`
 - **Cause:** You ran the command from inside the `backend/` directory or `PYTHONPATH` was not set.
@@ -814,7 +823,7 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   │   ├── builder2/                  # Prototype hazard specialists (formula baselines), calibrators & engines
 │   │   ├── safety/                    # Ported Repo A abstention, OOD detector & scope guards
 │   │   └── main.py                    # Application entry point
-│   └── tests/                         # 932 automated backend tests (100% passing)
+│   └── tests/                         # 952 automated backend tests (100% passing)
 │       ├── test_v3_*.py               # V3 model integrity, parity, calibration, & safety
 │       ├── test_day34_*.py            # Time contract & revision store
 │       ├── test_day37_*.py & 38_*.py  # Provider adapters & cross-provider disagreement
@@ -828,6 +837,7 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 ├── demo/                              # Interactive demonstration walkthroughs
 │   └── demo_script.md                 # 4 interactive demo flows (Normal, Abstention, OOD, Replay)
 ├── docs/                              # Technical documentation, phase reports & audit bundle
+│   ├── release/                       # Authoritative submission release package & audit report
 │   ├── science-evidence/              # Specialist evidence packages, ledger & promotion criteria
 │   ├── test-mapping/                  # 500-test specification mapping & domain disposition summary
 │   └── sih_audit/                     # Synced SIH Round-2 audit documents & tables
@@ -850,12 +860,12 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   ├── feature_names.json             # 50-feature schema definition
 │   └── V3_CERTIFIED.json              # Benchmark evaluation metadata and metrics
 ├── round2-report/                     # Consolidated Round-2 audit and merge report
-├── scripts/                           # 27 Gate Tests, Execution & Verification Scripts
+├── scripts/                           # 28 Gate Tests, Execution & Verification Scripts
 │   ├── run_all_master_gates.py        # Master 10-gate acceptance runner (100% passing)
 │   ├── run_release_gates.py           # Pre-release secret scan, test, & hash verifier
 │   ├── clean_clone_reproduction.py    # Isolated clean-clone reproduction test
 │   ├── compare_golden_v3_outputs.py   # Golden V3 output parity evaluator
-│   └── gate_test_step1.py through gate_test_phase8.py # Individual gate scripts
+│   └── gate_test_step1.py through gate_test_phase9.py # Individual gate scripts
 ├── launch.bat                         # One-click Windows development launcher
 ├── pyproject.toml                     # Python dependencies and packaging metadata
 ├── pytest.ini                         # Pytest configuration and test filters
