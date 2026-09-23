@@ -5,11 +5,11 @@
   <img src="https://img.shields.io/badge/SIH-2026-orange.svg?style=for-the-badge&logo=target" alt="SIH 2026" />
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
-  <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20c9903fa-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at c9903fa" /></a>
-  <a href="docs/release/README.md"><img src="https://img.shields.io/badge/Release%20Candidate-6c1e845-purple.svg?style=for-the-badge&logo=git" alt="Release candidate at 6c1e845" /></a>
-  <img src="https://img.shields.io/badge/Backend%20Tests-952%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="952 Backend Tests Passed" />
+  <a href="audit/phase01_baseline_evidence.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%20d2b064a-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at d2b064a" /></a>
+  <a href="phases/README.md"><img src="https://img.shields.io/badge/Roadmap-Phase%2001%20Frozen-success.svg?style=for-the-badge&logo=gitbook" alt="Phase 01 Frozen" /></a>
+  <img src="https://img.shields.io/badge/Backend%20Tests-954%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="954 Backend Tests Passed" />
   <img src="https://img.shields.io/badge/Frontend%20Tests-111%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="111 Frontend Tests Passed" />
-  <img src="https://img.shields.io/badge/Gates%20Status-10%2F10%20Passed-brightgreen.svg?style=for-the-badge" alt="All 10 Master Gates Passed" />
+  <img src="https://img.shields.io/badge/Gates%20Status-11%2F11%20Passed-brightgreen.svg?style=for-the-badge" alt="All Acceptance Gates Passed" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%206-61dafb.svg?style=for-the-badge&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License" />
@@ -164,10 +164,29 @@ The merged candidate in **VERSION-3** resolves all technical debt, scientific di
 | **G9, G11**| Phase 5: Revision & Replay | Durable revision store, honest replay matrix, digital twin engine | `python scripts/gate_test_phase5.py` | **100% PASSED** |
 | **G8** | Phase 6: Specialist Containment | Hazard specialists cataloged as formula baselines, promotion boundaries | `python scripts/gate_test_phase6.py` | **100% PASSED** |
 | **G14–G17**| Phase 7: CI & Test Suite | 932 backend tests + 111 frontend tests passing (1,043 total), 500-test ledger (376 passed, 124 N/A), release gate validation | `pytest backend/tests -q` & `npm test` | **100% PASSED** |
-| **P8** | Phase 8: Demo & Operational Hardening | Fixture-scoped Builder-2 fallback, trust-state contract alignment, UI data provenance badges, 952 backend + 111 frontend tests (1,063 total) | `python scripts/gate_test_phase8.py` | **100% PASSED** |
+| **P8** | Phase 8: Demo & Operational Hardening | Fixture-scoped Builder-2 fallback, trust-state contract alignment, UI data provenance badges, 954 backend + 111 frontend tests (1,065 total) | `python scripts/gate_test_phase8.py` | **100% PASSED** |
 | **P9** | Phase 9: Final Submission Freeze | Candidate SHA freeze, 7 evidence classes verified, clean-clone reproduction, dedicated Phase 09 gate | `python scripts/gate_test_phase9.py` | **100% PASSED** |
 
-> **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. With Phase 09 completion, all 10 acceptance gates pass with 100% success rate, certifying the authoritative submission candidate (documented in [`docs/release/README.md`](docs/release/README.md) and [`docs/release/submission_audit_report.md`](docs/release/submission_audit_report.md)).
+> **Master Gate Orchestrator:** Run `python scripts/run_all_master_gates.py` to test the gate sequence. All acceptance gates pass with 100% success rate, certifying the authoritative submission candidate (documented in [`docs/release/README.md`](docs/release/README.md) and [`docs/release/submission_audit_report.md`](docs/release/submission_audit_report.md)).
+
+---
+
+### 4.6 10-Phase Maximum-Score Execution Roadmap & Issue Register
+
+To address every technical, scientific, and verification gap across the entire codebase under strict empirical bounds, the project operates under a formal 10-Phase Roadmap governed by [`manifests/VEYRA_V3_MERGE_CORRECTION_AND_FULL_ISSUE_REGISTER.csv`](manifests/VEYRA_V3_MERGE_CORRECTION_AND_FULL_ISSUE_REGISTER.csv) and [`phases/README.md`](phases/README.md):
+
+| Phase | Specification Document | Focus & Scope | Compulsory Gate | Status |
+|:---:|:---|:---|:---|:---:|
+| **Phase 01** | [`phases/phase-01-baseline-freeze-provenance-and-correction-register.md`](phases/phase-01-baseline-freeze-provenance-and-correction-register.md) | Baseline freeze (`d2b064a`), 26-item issue register, inventory SHA-256 ledger | `python scripts/gate_test_phase01_roadmap.py` | **100% PASSED** |
+| **Phase 02** | [`phases/phase-02-truth-alignment-and-claim-boundary-enforcement.md`](phases/phase-02-truth-alignment-and-claim-boundary-enforcement.md) | Evidence class boundaries, claim verification, anti-hallucination guardrails | `python scripts/validate_claim_register.py` | **PLANNED** |
+| **Phase 03** | [`phases/phase-03-ml-core-hardening-and-calibrator-runtime-alignment.md`](phases/phase-03-ml-core-hardening-and-calibrator-runtime-alignment.md) | V3 LightGBM & calibrator runtime safety, 50-feature schema lock | `python scripts/verify_artifacts.py` | **PLANNED** |
+| **Phase 04** | [`phases/phase-04-nwp-data-pipeline-openmeteo-adapter-and-time-contracts.md`](phases/phase-04-nwp-data-pipeline-openmeteo-adapter-and-time-contracts.md) | Multi-provider ingestion, OpenMeteo live adapter, UTC time contract | `pytest backend/tests/test_day37*.py` | **PLANNED** |
+| **Phase 05** | [`phases/phase-05-historical-replay-synthetic-twin-decoupling-and-audit.md`](phases/phase-05-historical-replay-synthetic-twin-decoupling-and-audit.md) | Durable revision store, replay matrix, synthetic twin decoupling | `pytest backend/tests/test_replay_modes.py` | **PLANNED** |
+| **Phase 06** | [`phases/phase-06-hazard-reliability-specialists-physics-baselines-and-promotion.md`](phases/phase-06-hazard-reliability-specialists-physics-baselines-and-promotion.md) | 6 hazard specialists as formula baselines, promotion rules | `pytest backend/tests/test_hazard_*.py` | **PLANNED** |
+| **Phase 07** | [`phases/phase-07-evidence-graph-self-critic-and-cross-system-transferability.md`](phases/phase-07-evidence-graph-self-critic-and-cross-system-transferability.md) | Knowledge graph consistency validator, ECMWF/GFS transferability | `pytest backend/tests/test_multi_system.py` | **PLANNED** |
+| **Phase 08** | [`phases/phase-08-frontend-react-dashboard-hardening-and-provenance-indicators.md`](phases/phase-08-frontend-react-dashboard-hardening-and-provenance-indicators.md) | Provenance indicators, trust badges, fallback handling | `npm test -- --run` | **PLANNED** |
+| **Phase 09** | [`phases/phase-09-unified-test-suite-500-spec-ledger-and-release-gates.md`](phases/phase-09-unified-test-suite-500-spec-ledger-and-release-gates.md) | 954 backend + 111 frontend tests, 500-spec ledger | `python scripts/run_release_gates.py` | **PLANNED** |
+| **Phase 10** | [`phases/phase-10-independent-review-and-sih-submission-freeze.md`](phases/phase-10-independent-review-and-sih-submission-freeze.md) | Clean-clone reproduction, final submission bundle freeze | `python scripts/gate_test_phase9.py` | **PLANNED** |
 
 ---
 
@@ -719,7 +738,7 @@ pytest -v
 
 | Test Domain | Target Blueprint Gate | Exact Pytest Command | Passing Tests |
 |:---|:---:|:---|:---:|
-| **All Tests (Full Regression)** | Gates 1–11 & P0–P9 | `python -m pytest backend/tests/ -q` | **952 passed** |
+| **All Tests (Full Regression)** | Gates 1–11 & P0–P9 | `python -m pytest backend/tests/ -q` | **954 passed** |
 | **V3 Model Integrity & Parity** | Phase 3 (G1–G3) | `python -m pytest backend/tests/test_v3_*.py -q` | **60 passed** |
 | **Ported Time Contract & Revision** | Phase 4 & 5 (P4, G9) | `python -m pytest backend/tests/test_day34_time_contract_revision_store.py -q` | **25 passed** |
 | **Provider Disagreement & Adapters** | Phase 4 (P4) | `python -m pytest backend/tests/test_day37_provider_adapters.py backend/tests/test_day38_cross_provider_disagreement.py -q` | **28 passed** |
@@ -727,6 +746,7 @@ pytest -v
 | **Replay Mode Separation & Contracts** | Gate 11 (Phase 5) | `python -m pytest backend/tests/test_replay_modes.py -q` | **10 passed** |
 | **Rollback & Governance Invariants** | Phase 5 & 7 | `python -m pytest backend/tests/test_rollback_governance.py -q` | **3 passed** |
 | **Specialist Evidence & Containment** | Gate 8 (Phase 6) | `python -m pytest backend/tests/test_scientific_evidence_package.py -q` | **11 passed** |
+| **Hazard Specialists Real Execution** | Roadmap Phase 01 | `python -m pytest backend/tests/test_hazard_specialists_real.py -q` | **2 passed** |
 | **500-Test Mapping & Invariants** | Gate 17 (Phase 7) | `python -m pytest backend/tests/test_500_test_mapping.py -q` | **9 passed** |
 | **Western Disturbance Specialist** | Gate 6 | `python -m pytest backend/tests/test_western_disturbance_specialist.py backend/tests/test_hazard_routing.py -q` | **15 passed** |
 | **Heatwave & Severe Wind** | Gate 7 | `python -m pytest backend/tests/test_heatwave_specialist.py backend/tests/test_severe_wind_specialist.py -q` | **22 passed** |
@@ -823,11 +843,12 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   │   ├── builder2/                  # Prototype hazard specialists (formula baselines), calibrators & engines
 │   │   ├── safety/                    # Ported Repo A abstention, OOD detector & scope guards
 │   │   └── main.py                    # Application entry point
-│   └── tests/                         # 952 automated backend tests (100% passing)
+│   └── tests/                         # 954 automated backend tests (100% passing)
 │       ├── test_v3_*.py               # V3 model integrity, parity, calibration, & safety
 │       ├── test_day34_*.py            # Time contract & revision store
 │       ├── test_day37_*.py & 38_*.py  # Provider adapters & cross-provider disagreement
 │       ├── test_scientific_evidence_package.py # Specialist evidence & containment
+│       ├── test_hazard_specialists_real.py # Hazard specialists deterministic baseline verification
 │       ├── test_500_test_mapping.py   # 500-test specification mapping & invariants
 │       └── test_scientific_certification.py # Certification scope & wording policies
 ├── builds/                            # Build Isolation Directory
@@ -845,7 +866,9 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   ├── src/                           # Components, state, leaflet maps, SHAP, replay
 │   └── package.json                   # 111 Vitest frontend tests (100% passing)
 ├── imple-plan/                        # 14 Phased Implementation Plans (00 to 13)
-├── manifests/                         # 50 Governance Manifests
+├── manifests/                         # 52 Governance Manifests
+│   ├── VEYRA_V3_MERGE_CORRECTION_AND_FULL_ISSUE_REGISTER.csv # Master 26-item issue register across 10 roadmap phases
+│   ├── phase01_baseline_inventory.json # Cryptographic SHA-256 inventory (637 files at d2b064a)
 │   ├── claim_register.csv             # 19 claims classified strictly across 7 evidence tiers
 │   ├── test_500_ledger.csv            # Authoritative 500-specification mapping ledger (20 domains x 25 IDs)
 │   ├── test_500_id_ledger.csv         # 500 test IDs mapped to verified outcomes & domains
@@ -854,6 +877,10 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   ├── v3_release_manifest.json       # Authoritative SHA-256 hashes for V3 binaries & schema
 │   ├── risk_register.md               # 7 critical architectural risks & active mitigations
 │   └── rollback_procedure.md          # 3-step rapid rollback protocol (MTTR < 5m)
+├── phases/                            # 10-Phase Execution Roadmap Specifications
+│   ├── README.md                      # Phased execution plan & governance instructions
+│   ├── phase-01-baseline-freeze-provenance-and-correction-register.md # Phase 01: 100% PASSED
+│   └── phase-02-... through phase-10-... # Phase 02 to Phase 10 execution specifications
 ├── models/v3/                         # Incumbent V3 Model Artifacts (Frozen 25-station benchmark)
 │   ├── lightgbm_v3_challenger.joblib  # LightGBM binary (SHA: 00a84107...)
 │   ├── probability_calibrator_v3.joblib # Isotonic calibrator binary (SHA: 9f448606...)
