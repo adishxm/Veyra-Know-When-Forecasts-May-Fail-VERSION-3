@@ -220,3 +220,48 @@ def test_d37_20_live_primary_smoke_helper():
     status, detail = perform_live_provider_smoke_check()
     assert status.value in ["LIVE_PROVIDER_VERIFIED", "LIVE_PROVIDER_UNVERIFIED"]
     assert len(detail) > 0
+
+
+def test_d37_21_openmeteo_adapter_fetch_forecast_contract():
+    """Verify OpenMeteoProviderAdapter correctly calls WeatherService.get_forecast without parameter errors."""
+    from unittest.mock import MagicMock
+    from backend.app.services.base import WeatherResult
+    from backend.app.schemas.weather import CanonicalForecastRecord, CanonicalForecastDataset
+
+    mock_service = MagicMock()
+    mock_record = CanonicalForecastRecord(
+        location="Delhi",
+        latitude=28.6139,
+        longitude=77.2090,
+        issue_time="2026-09-22T00:00:00Z",
+        valid_time="2026-09-23T00:00:00Z",
+        lead_hours=24,
+        variable="temperature_2m",
+        unit="celsius",
+        value=32.4,
+    )
+    dataset = CanonicalForecastDataset(
+        location="Delhi",
+        latitude=28.6139,
+        longitude=77.2090,
+        issue_time="2026-09-22T00:00:00Z",
+        records=[mock_record],
+    )
+    mock_service.get_forecast.return_value = WeatherResult(
+        location="Delhi",
+        is_available=True,
+        raw_data=dataset.model_dump(),
+        data_version="gefs-openmeteo-v1.0",
+        quality_flags={"qc_passed": True},
+    )
+
+    adapter = OpenMeteoProviderAdapter(service=mock_service)
+    result = adapter.fetch_forecast(location="Delhi", variable="temperature_2m", lead_hours=24)
+
+    mock_service.get_forecast.assert_called_once_with(location="Delhi")
+    assert result.is_available is True
+    assert result.status == ProviderResponseStatus.SUCCESS
+    assert result.forecast_value == 32.4
+    assert result.variable == "temperature_2m"
+    assert result.provider_id == "openmeteo_gefs"
+

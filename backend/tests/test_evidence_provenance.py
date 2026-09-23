@@ -102,7 +102,7 @@ def test_model_provenance_requires_valid_sha256():
         model_version="veyra-v3-challenger",
         model_sha256=valid_sha,
         calibrator_sha256="9f448606ce4338ded92f238a551b3a9d8e6d2cb5902e8bc687bce5f5850af531",
-        feature_names_sha256="265cffbbd157a2b8b8b46d3702438050980043b5ed3a6a646a7969cdb9853355",
+        feature_names_sha256="702ff4153fd95d8c9de3bbd01461d65fde0ef207099f7f3a8e7f5c8bac02031e",
         is_lfs_hydrated=True,
     )
     assert model_prov.model_sha256 == valid_sha

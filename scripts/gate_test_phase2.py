@@ -1,3 +1,10 @@
+"""Gate P0-2: Base Selection and Branch Controls Verification.
+
+Supports two explicit source modes:
+- GIT MODE: Verifies active branch (main or integration/sih-round2-selective-merge).
+- ARCHIVE MODE: Validates integration branch declaration in release manifest, plus single trees.
+"""
+import json
 import os
 import subprocess
 import sys
@@ -17,12 +24,31 @@ def test_phase2():
     print("=== Gate P0-2: Base Selection and Branch Controls Verification ===")
     failures = []
 
-    # 1. Integration branch active in repo_b
-    code, branch, _ = run("git branch --show-current", cwd=REPO_B)
-    if branch not in ["integration/sih-round2-selective-merge", "main"]:
-        failures.append(f"repo_b branch is '{branch}', expected 'integration/sih-round2-selective-merge' or 'main'")
+    # 1. Integration branch validation
+    is_git_mode = os.path.isdir(os.path.join(REPO_B, ".git"))
+    if is_git_mode:
+        print("[SOURCE_MODE=GIT] Checking active Git branch...")
+        code, branch, _ = run("git branch --show-current", cwd=REPO_B)
+        if branch not in ["integration/sih-round2-selective-merge", "main"]:
+            failures.append(f"repo_b branch is '{branch}', expected 'integration/sih-round2-selective-merge' or 'main'")
+        else:
+            print(f"[PASS] repo_b integration/main branch confirmed: {branch}")
     else:
-        print(f"[PASS] repo_b integration/main branch confirmed: {branch}")
+        print("[SOURCE_MODE=ARCHIVE] .git directory absent; validating integration branch via release manifest...")
+        rel_man_file = os.path.join(REPO_B, "backend", "app", "core", "release_manifest.json")
+        if not os.path.isfile(rel_man_file):
+            failures.append(f"Missing release manifest: {rel_man_file}")
+        else:
+            try:
+                rel_data = json.loads(open(rel_man_file, encoding="utf-8").read())
+                prov = rel_data.get("git_provenance", {})
+                branch = prov.get("integration_branch")
+                if branch not in ["integration/sih-round2-selective-merge", "main"]:
+                    failures.append(f"Invalid integration branch in release manifest: '{branch}'")
+                else:
+                    print(f"[PASS] Authoritative integration branch confirmed: {branch}")
+            except Exception as exc:
+                failures.append(f"Failed to parse release manifest: {exc}")
 
     # 2. Check canonical single backend/app and frontend/src
     backend_app = os.path.join(REPO_B, "backend", "app")

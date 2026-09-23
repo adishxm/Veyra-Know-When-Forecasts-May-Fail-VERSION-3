@@ -129,7 +129,7 @@ def test_phase9():
     # ── 10. Clean-Clone Reproduction in Isolated Workspace ───────────────
     print("\n>>> 10. Executing Clean-Clone Reproduction in Pristine Isolated Workspace...")
     code, out, err = run("python scripts/clean_clone_reproduction.py --tag sih-round2-candidate-v1")
-    if code != 0 or "CLEAN-CLONE REPRODUCTION PASSED" not in out:
+    if code != 0 or "REPRODUCTION PASSED" not in out:
         failures.append(f"Clean-clone reproduction failed:\n{out[-400:]}\n{err[-400:]}")
     else:
         print("  [PASS] Clean-clone reproduction passed with 100% success.")

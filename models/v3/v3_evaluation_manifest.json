@@ -6,7 +6,7 @@
   "model_family": "LightGBM + Isotonic Calibration",
   "model_artifact_sha256": "00A8410746F4A0EECBF7E76AAA0565143FC948D0E06AEA65E7BCC4CE28A1C660",
   "calibrator_artifact_sha256": "9F448606CE4338DED92F238A551B3A9D8E6D2CB5902E8BC687BCE5F5850AF531",
-  "feature_contract_sha256": "265CFFBBD157A2B8B8B46D3702438050980043B5ED3A6A646A7969CDB9853355",
+  "feature_contract_sha256": "702FF4153FD95D8C9DE3BBD01461D65FDE0EF207099F7F3A8E7F5C8BAC02031E",
   "feature_count": 50,
   "calibration_method": "isotonic",
   "evaluation_dataset": "canonical_reforecast_test",

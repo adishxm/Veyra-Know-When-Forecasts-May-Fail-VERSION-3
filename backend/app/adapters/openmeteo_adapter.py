@@ -47,15 +47,9 @@ class OpenMeteoProviderAdapter(BaseProviderAdapter):
     ) -> NormalizedProviderForecast:
         """Fetch forecast from Open-Meteo GEFS and convert into NormalizedProviderForecast."""
         try:
-            res = self._service.get_forecast(
-                location=location,
-                variable=variable,
-                lead_hours=lead_hours,
-                issue_time=issue_time,
-                valid_time=valid_time,
-            )
+            res = self._service.get_forecast(location=location)
 
-            if not res or not res.is_available or not res.record:
+            if not res or not res.is_available or not res.raw_data:
                 return NormalizedProviderForecast(
                     provider_id=self.provider_id,
                     provider_name=self.provider_name,
@@ -74,10 +68,43 @@ class OpenMeteoProviderAdapter(BaseProviderAdapter):
                     error_detail=res.error if res else "Open-Meteo returned empty result",
                 )
 
-            rec = res.record
+            records = res.raw_data.get("records", [])
+            matching_var = [r for r in records if r.get("variable") == variable]
+            if not matching_var:
+                matching_var = records
+
+            target_rec = None
+            if valid_time:
+                for r in matching_var:
+                    if r.get("valid_time") == valid_time:
+                        target_rec = r
+                        break
+            if target_rec is None and matching_var:
+                target_rec = min(matching_var, key=lambda r: abs(r.get("lead_hours", 0) - lead_hours))
+
+            if not target_rec:
+                return NormalizedProviderForecast(
+                    provider_id=self.provider_id,
+                    provider_name=self.provider_name,
+                    provider_source_mode=self.provider_source_mode,
+                    canonical_location=location,
+                    latitude=res.raw_data.get("latitude", 0.0),
+                    longitude=res.raw_data.get("longitude", 0.0),
+                    issue_time=res.raw_data.get("issue_time", issue_time or ""),
+                    valid_time=valid_time or "",
+                    lead_hours=lead_hours,
+                    variable=variable,
+                    forecast_value=None,
+                    unit="",
+                    is_available=False,
+                    status=ProviderResponseStatus.UNAVAILABLE,
+                    error_detail=f"No record found for variable '{variable}'",
+                )
+
+            val = target_rec.get("value")
             norm_val, norm_unit = normalize_unit_value(
-                value=rec.forecast_value,
-                source_unit=rec.unit or "",
+                value=val,
+                source_unit=target_rec.get("unit", ""),
                 target_variable=variable,
             )
 
@@ -85,18 +112,18 @@ class OpenMeteoProviderAdapter(BaseProviderAdapter):
                 provider_id=self.provider_id,
                 provider_name=self.provider_name,
                 provider_source_mode=self.provider_source_mode,
-                canonical_location=rec.location,
-                latitude=rec.latitude,
-                longitude=rec.longitude,
-                issue_time=rec.issue_time,
-                valid_time=rec.valid_time,
-                lead_hours=rec.lead_hours,
-                variable=rec.variable,
+                canonical_location=target_rec.get("location", location),
+                latitude=target_rec.get("latitude", 0.0),
+                longitude=target_rec.get("longitude", 0.0),
+                issue_time=target_rec.get("issue_time", ""),
+                valid_time=target_rec.get("valid_time", ""),
+                lead_hours=target_rec.get("lead_hours", lead_hours),
+                variable=target_rec.get("variable", variable),
                 forecast_value=round(norm_val, 4) if norm_val is not None else None,
                 unit=norm_unit,
-                ensemble_mean=rec.ensemble_mean,
-                ensemble_std=rec.ensemble_std,
-                member_values=rec.member_values,
+                ensemble_mean=target_rec.get("ensemble_mean"),
+                ensemble_std=target_rec.get("ensemble_std"),
+                member_values=target_rec.get("member_values"),
                 is_available=True,
                 status=ProviderResponseStatus.SUCCESS,
                 metadata={
@@ -121,6 +148,6 @@ class OpenMeteoProviderAdapter(BaseProviderAdapter):
                 forecast_value=None,
                 unit="",
                 is_available=False,
-                status=ProviderResponseStatus.ERROR,
-                error_detail=str(exc),
+                status=ProviderResponseStatus.UNAVAILABLE,
+                error_detail=f"OpenMeteo fetch exception: {str(exc)}",
             )

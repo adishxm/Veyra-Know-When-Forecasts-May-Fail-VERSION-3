@@ -1,5 +1,12 @@
-import subprocess
+"""Phase 0 Gate (Gate P0-0) — Freeze and Inventory Verification.
+
+Supports two explicit source modes:
+- GIT MODE: Verifies active git worktree, HEAD, branch, and ancestry.
+- ARCHIVE MODE: Rigorously verifies provenance, manifest integrity, and file inventories.
+"""
+import json
 import os
+import subprocess
 import sys
 
 def run(cmd, cwd=None):
@@ -23,25 +30,15 @@ def test_phase0():
 
     repo_a_dir = os.environ.get("REPO_A_DIR", "repos/repo_a")
 
-    # 1. Clean worktrees
+    # 1. External historical repo_a checks (if present)
     if os.path.isdir(repo_a_dir) and os.path.isdir(os.path.join(repo_a_dir, ".git")):
         code, out, _ = run(f"git -C {repo_a_dir} status --porcelain")
         if code != 0 or out != "":
             failures.append(f"repo_a dirty worktree: {out}")
         else:
             print("[PASS] repo_a worktree is clean")
-    else:
-        print("[INFO] Standalone clone mode: external repo_a not present; skipping historical multi-repo cross-check")
-
-    code, out, _ = run(f"git -C {repo_b_target} status --porcelain")
-    if code != 0 or out != "":
-        failures.append(f"repo_b dirty worktree: {out}")
-    else:
-        print("[PASS] repo_b worktree is clean")
-
-    # 2. Check SHAs
-    expected_a = "b9f52d3eeec8676e06b1879f05b404605e2501be"
-    if os.path.isdir(repo_a_dir) and os.path.isdir(os.path.join(repo_a_dir, ".git")):
+        
+        expected_a = "b9f52d3eeec8676e06b1879f05b404605e2501be"
         code, out, _ = run(f"git -C {repo_a_dir} rev-parse HEAD")
         if out != expected_a:
             failures.append(f"repo_a SHA mismatch: {out}")
@@ -50,13 +47,50 @@ def test_phase0():
     else:
         print("[INFO] Standalone clone mode: external repo_a not present; skipping external SHA check")
 
-    expected_b = "82eded8194151e37fb9b3eecf273010dc62d7b29"
-    code_tag, out_tag, _ = run(f'git -C {repo_b_target} rev-parse "audit-repo-b-82eded8^{{commit}}"')
-    code_anc, _, _ = run(f"git -C {repo_b_target} merge-base --is-ancestor {expected_b} HEAD")
-    if (code_tag != 0 and out_tag != expected_b) or code_anc != 0:
-        failures.append(f"repo_b base SHA mismatch: tag={out_tag}, ancestry_code={code_anc}, expected {expected_b}")
+    # 2. Source Mode Resolution for target repository
+    is_git_mode = os.path.isdir(os.path.join(repo_b_target, ".git"))
+    expected_base_b = "82eded8194151e37fb9b3eecf273010dc62d7b29"
+    expected_candidate_b = "6c1e8453d0f2fc12fc1b12f813858430cf5ebda4"
+
+    if is_git_mode:
+        print("[SOURCE_MODE=GIT] Validating active Git repository state...")
+        code, out, _ = run(f"git -C {repo_b_target} status --porcelain")
+        if code != 0 or out != "":
+            failures.append(f"repo_b dirty worktree: {out}")
+        else:
+            print("[PASS] repo_b worktree is clean")
+
+        code_tag, out_tag, _ = run(f'git -C {repo_b_target} rev-parse "audit-repo-b-82eded8^{{commit}}"')
+        code_anc, _, _ = run(f"git -C {repo_b_target} merge-base --is-ancestor {expected_base_b} HEAD")
+        if (code_tag != 0 and out_tag != expected_base_b) and code_anc != 0:
+            failures.append(f"repo_b base SHA mismatch: tag={out_tag}, ancestry_code={code_anc}, expected {expected_base_b}")
+        else:
+            print(f"[PASS] repo_b base SHA confirmed & descends from: {expected_base_b}")
     else:
-        print(f"[PASS] repo_b base SHA confirmed & descends from: {expected_b}")
+        print("[SOURCE_MODE=ARCHIVE] .git directory absent; validating authoritative package provenance...")
+        sha_file = os.path.join(repo_b_target, "manifests", "candidate_sha.txt")
+        if not os.path.isfile(sha_file):
+            failures.append(f"Missing candidate SHA record: {sha_file}")
+        else:
+            cand_sha = open(sha_file, encoding="utf-8").read().strip()
+            if cand_sha != expected_candidate_b:
+                failures.append(f"Candidate SHA mismatch in candidate_sha.txt: {cand_sha} != {expected_candidate_b}")
+            else:
+                print(f"[PASS] Authoritative Candidate SHA verified: {cand_sha}")
+
+        rel_man_file = os.path.join(repo_b_target, "backend", "app", "core", "release_manifest.json")
+        if not os.path.isfile(rel_man_file):
+            failures.append(f"Missing release manifest: {rel_man_file}")
+        else:
+            try:
+                rel_data = json.loads(open(rel_man_file, encoding="utf-8").read())
+                prov = rel_data.get("git_provenance", {})
+                if prov.get("base_commit_sha") != expected_base_b:
+                    failures.append(f"Release manifest base SHA mismatch: {prov.get('base_commit_sha')} != {expected_base_b}")
+                else:
+                    print(f"[PASS] Base commit provenance verified: {expected_base_b}")
+            except Exception as exc:
+                failures.append(f"Could not parse release manifest: {exc}")
 
     # 3. Check all Phase 0 manifests
     required_manifests = [

@@ -32,7 +32,7 @@
     "feature_count": 50,
     "feature_schema_version": "veyra-50-features-v3.0",
     "feature_names_reference": "models/v3/feature_names.json",
-    "sha256": "265cffbbd157a2b8b8b46d3702438050980043b5ed3a6a646a7969cdb9853355"
+    "sha256": "702ff4153fd95d8c9de3bbd01461d65fde0ef207099f7f3a8e7f5c8bac02031e"
   },
   "route_authority": "/v1/predict",
   "fallback_policy": "safe_abstention",

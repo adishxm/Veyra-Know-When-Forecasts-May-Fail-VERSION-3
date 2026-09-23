@@ -45,7 +45,7 @@ CALIBRATOR_PATH = REPO_ROOT / "models/v3/probability_calibrator_v3.joblib"
 FEATURES_PATH = REPO_ROOT / "models/v3/feature_names.json"
 
 EXPECTED_FEATURE_SHA256 = (
-    "265cffbbd157a2b8b8b46d3702438050980043b5ed3a6a646a7969cdb9853355"
+    "702ff4153fd95d8c9de3bbd01461d65fde0ef207099f7f3a8e7f5c8bac02031e"
 )
 
 
@@ -307,3 +307,56 @@ def test_gate_g3_safe_abstention_on_missing_or_corrupt_artifacts(tmp_path):
     assert result.probability is None
     assert result.error is not None
     assert "unavailable" in result.error.lower() or "missing" in result.error.lower()
+
+
+# =========================================================================
+# COMPREHENSIVE NINE-POINT CONTRACT INVARIANT PROOFS
+# =========================================================================
+
+
+def test_gate_g1_nine_point_contract_invariants():
+    """Verify all 9 platform-independent feature and artifact invariants."""
+    # 1. Feature count == 50
+    with open(FEATURES_PATH, "r", encoding="utf-8") as f:
+        features = json.load(f)
+    assert len(features) == 50, f"Expected 50 features, got {len(features)}"
+
+    # 2. feature_names.json order == Booster.feature_name()
+    model_obj = joblib.load(MODEL_PATH)
+    booster = getattr(model_obj, "booster_", model_obj)
+    if not isinstance(booster, lgb.Booster):
+        booster = getattr(model_obj, "_Booster", booster)
+    assert booster.feature_name() == features
+
+    # 3. Canonical LF byte representation produces exact canonical hash
+    raw_bytes = FEATURES_PATH.read_bytes()
+    lf_bytes = raw_bytes.replace(b"\r\n", b"\n")
+    lf_hash = hashlib.sha256(lf_bytes).hexdigest()
+    assert lf_hash == EXPECTED_FEATURE_SHA256 == "702ff4153fd95d8c9de3bbd01461d65fde0ef207099f7f3a8e7f5c8bac02031e"
+    assert raw_bytes == lf_bytes, "File on disk must have canonical LF line endings"
+
+    # 4. LF/CRLF platform settings cannot silently invalidate the release contract
+    # Simulate a CRLF-checked-out file and prove canonicalization handles it deterministically
+    crlf_bytes = lf_bytes.replace(b"\n", b"\r\n")
+    canonicalized_from_crlf = hashlib.sha256(crlf_bytes.replace(b"\r\n", b"\n")).hexdigest()
+    assert canonicalized_from_crlf == EXPECTED_FEATURE_SHA256
+
+    # 5. Model and calibrator hashes remain frozen
+    assert _compute_sha256(MODEL_PATH) == "00a8410746f4a0eecbf7e76aaa0565143fc948d0e06aea65e7bcc4ce28a1c660"
+    assert _compute_sha256(CALIBRATOR_PATH) == "9f448606ce4338ded92f238a551b3a9d8e6d2cb5902e8bc687bce5f5850af531"
+
+    # 6. Calibrator type remains IsotonicRegression
+    calibrator = joblib.load(CALIBRATOR_PATH)
+    assert type(calibrator).__name__ == "IsotonicRegression"
+
+    # 7. Serving threshold remains 0.060
+    manifest = load_release_manifest(str(RELEASE_MANIFEST_PATH))
+    assert manifest["model_artifact"]["decision_threshold"] == 0.060
+    assert V3_OPERATIONAL_THRESHOLD == 0.060
+
+    # 8. Route remains /v1/predict
+    assert manifest["route_authority"] == "/v1/predict"
+
+    # 9. Fallback policy remains safe_abstention
+    assert manifest["fallback_policy"] == "safe_abstention"
+
