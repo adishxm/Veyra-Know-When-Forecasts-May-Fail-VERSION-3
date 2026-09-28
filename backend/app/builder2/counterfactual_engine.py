@@ -114,9 +114,9 @@ class CounterfactualEngine:
         else:
             dec = self.abstention_policy.evaluate(hazard, ood_score=0.10, physical_valid=True)
 
-        contains_nan_or_inf = np.isnan(extreme_value) or np.isinf(extreme_value)
+        contains_nan_or_inf = bool(np.isnan(extreme_value) or np.isinf(extreme_value))
         action = dec.status.value
-        passed = (dec.should_abstain is True) and not contains_nan_or_inf
+        passed = bool((dec.should_abstain is True) and not contains_nan_or_inf)
 
         return CrashTestResult(
             test_name=test_name,
