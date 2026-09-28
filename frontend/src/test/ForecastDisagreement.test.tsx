@@ -188,20 +188,13 @@ describe('ForecastDisagreementPanel Component (Day 29)', () => {
     });
   });
 
-  it('preserves scientific scope semantics for <=240h vs 264h-384h', async () => {
-    vi.spyOn(apiClient, 'getForecastDisagreement')
-      .mockResolvedValueOnce({
-        data: createMockDisagreementResponse({
-          lead_hours: 240,
-          scientific_scope: 'FROZEN_BENCHMARK_LEAD_SCOPE',
-        }),
-      })
-      .mockResolvedValueOnce({
-        data: createMockDisagreementResponse({
-          lead_hours: 264,
-          scientific_scope: 'EXTENDED_OPERATIONAL_HORIZON',
-        }),
-      });
+  it('restricts forecast lead horizons strictly to benchmark scope (24h to 240h)', async () => {
+    vi.spyOn(apiClient, 'getForecastDisagreement').mockResolvedValue({
+      data: createMockDisagreementResponse({
+        lead_hours: 240,
+        scientific_scope: 'FROZEN_BENCHMARK_LEAD_SCOPE',
+      }),
+    });
 
     render(<ForecastDisagreementPanel initialLocation="Kolkata" initialLeadHours={240} />);
 
@@ -209,12 +202,13 @@ describe('ForecastDisagreementPanel Component (Day 29)', () => {
       expect(screen.getByText(/WITHIN FROZEN BENCHMARK LEAD SCOPE/i)).toBeInTheDocument();
     });
 
-    const horizonSelect = screen.getByLabelText(/LEAD HORIZON/i);
-    fireEvent.change(horizonSelect, { target: { value: '264' } });
+    const horizonSelect = screen.getByLabelText(/LEAD HORIZON/i) as HTMLSelectElement;
+    const options = Array.from(horizonSelect.options).map((opt) => Number(opt.value));
 
-    await waitFor(() => {
-      expect(screen.getByText(/EXTENDED OPERATIONAL HORIZON/i)).toBeInTheDocument();
-    });
+    // Only 24h through 240h should be present
+    expect(options).toEqual([24, 48, 72, 96, 120, 144, 168, 192, 216, 240]);
+    expect(options.some((v) => v > 240)).toBe(false);
+    expect(screen.queryByText(/Extended Operational Horizon/i)).not.toBeInTheDocument();
   });
 
   it('safely handles operational abstention without fabricating default zeroes', async () => {

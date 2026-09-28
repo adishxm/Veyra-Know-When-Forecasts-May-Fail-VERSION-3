@@ -31,24 +31,7 @@ const VARIABLE_OPTIONS = [
   { value: 'surface_pressure', label: 'Surface Pressure (hPa)', unit: 'hPa' },
 ];
 
-const HORIZON_OPTIONS = [
-  { lead: 24, label: '24h (1 Day)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 48, label: '48h (2 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 72, label: '72h (3 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 96, label: '96h (4 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 120, label: '120h (5 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 144, label: '144h (6 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 168, label: '168h (7 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 192, label: '192h (8 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 216, label: '216h (9 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 240, label: '240h (10 Days) [Benchmark Limit]', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 264, label: '264h (11 Days) [Extended Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 288, label: '288h (12 Days) [Extended Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 312, label: '312h (13 Days) [Extended Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 336, label: '336h (14 Days) [Extended Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 360, label: '360h (15 Days) [Extended Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 384, label: '384h (16 Days) [Max Operational Horizon]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-];
+import { HORIZON_OPTIONS, clampToBenchmarkLead } from '../data/horizons';
 
 export const ForecastDisagreementPanel: React.FC<ForecastDisagreementPanelProps> = ({
   initialLocation = 'Kolkata',
@@ -59,7 +42,7 @@ export const ForecastDisagreementPanel: React.FC<ForecastDisagreementPanelProps>
 }) => {
   const [location, setLocation] = useState<string>(initialLocation);
   const [variable, setVariable] = useState<string>(initialVariable);
-  const [leadHours, setLeadHours] = useState<number>(initialLeadHours);
+  const [leadHours, setLeadHours] = useState<number>(() => clampToBenchmarkLead(initialLeadHours));
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [disagreementData, setDisagreementData] = useState<ForecastDisagreementResponse | null>(null);
@@ -76,12 +59,13 @@ export const ForecastDisagreementPanel: React.FC<ForecastDisagreementPanelProps>
   }, [initialVariable]);
 
   useEffect(() => {
-    if (initialLeadHours) setLeadHours(initialLeadHours);
+    if (initialLeadHours) setLeadHours(clampToBenchmarkLead(initialLeadHours));
   }, [initialLeadHours]);
 
   const isCertifiedScope = leadHours <= 240;
 
   const handleFetchDisagreement = async (locToUse = location, varToUse = variable, leadToUse = leadHours) => {
+    const safeLead = clampToBenchmarkLead(leadToUse);
     if (!locToUse.trim()) {
       setError('Please provide a target location.');
       return;
@@ -90,17 +74,17 @@ export const ForecastDisagreementPanel: React.FC<ForecastDisagreementPanelProps>
     setCrossProviderLoading(true);
     setError(null);
 
-    // Concurrently fetch Day 29 GEFS disagreement and Day 38 Cross-Provider disagreement
+    // Concurrently fetch GEFS disagreement and Cross-Provider disagreement
     const gefsPromise = apiClient.getForecastDisagreement({
       location: locToUse.trim(),
       variable: varToUse,
-      lead_hours: leadToUse,
+      lead_hours: safeLead,
     });
 
     const crossProviderPromise = apiClient.getCrossProviderDisagreement({
       location: locToUse.trim(),
       variable: varToUse,
-      lead_hours: leadToUse,
+      lead_hours: safeLead,
     });
 
     try {
@@ -356,7 +340,7 @@ export const ForecastDisagreementPanel: React.FC<ForecastDisagreementPanelProps>
               id="disagreement-horizon-select"
               value={leadHours}
               onChange={(e) => {
-                const lh = Number(e.target.value);
+                const lh = clampToBenchmarkLead(Number(e.target.value));
                 setLeadHours(lh);
                 handleFetchDisagreement(location, variable, lh);
               }}

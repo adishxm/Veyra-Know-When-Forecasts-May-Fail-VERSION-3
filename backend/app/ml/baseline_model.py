@@ -69,6 +69,9 @@ class LogisticRegressionBustModel:
         if len(X) == 0:
             return np.array([], dtype=np.float64)
 
+        if self.model is not None and not hasattr(self.model, "multi_class"):
+            self.model.multi_class = "auto"
+
         # Scikit-learn predict_proba returns [P(class=0), P(class=1)]
         proba_matrix = self.model.predict_proba(X)
         if proba_matrix.shape[1] >= 2:

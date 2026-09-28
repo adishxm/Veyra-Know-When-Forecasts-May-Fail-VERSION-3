@@ -17,28 +17,10 @@ import {
 } from '../api/types';
 
 import { INDIAN_BENCHMARK_25_STATIONS } from '../data/locations';
+import { HORIZON_OPTIONS, clampToBenchmarkLead } from '../data/horizons';
 
 const MAJOR_METROS = ['Delhi', 'Kolkata', 'Mumbai', 'Chennai', 'Bengaluru'];
 const NORTH_SOUTH = ['Delhi', 'Srinagar', 'Leh', 'Chennai', 'Thiruvananthapuram', 'Kochi'];
-
-const HORIZON_OPTIONS = [
-  { lead: 24, label: '24h (1 Day)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 48, label: '48h (2 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 72, label: '72h (3 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 96, label: '96h (4 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 120, label: '120h (5 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 144, label: '144h (6 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 168, label: '168h (7 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 192, label: '192h (8 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 216, label: '216h (9 Days)', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 240, label: '240h (10 Days) [Benchmark Limit]', scope: 'FROZEN_BENCHMARK_LEAD_SCOPE' },
-  { lead: 264, label: '264h (11 Days) [Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 288, label: '288h (12 Days) [Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 312, label: '312h (13 Days) [Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 336, label: '336h (14 Days) [Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 360, label: '360h (15 Days) [Operational]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-  { lead: 384, label: '384h (16 Days) [Max Horizon]', scope: 'EXTENDED_OPERATIONAL_HORIZON' },
-];
 
 function MapBoundsController({ points }: { points: SpatialReliabilityPoint[] }) {
   const map = useMap();
@@ -342,39 +324,30 @@ export const SpatialReliabilityPanel: React.FC<SpatialReliabilityPanelProps> = (
         <div>
           <label htmlFor="spatial-horizon-select" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: '6px' }}>
             <span>Forecast Lead Horizon</span>
-            <span style={{ color: isCertifiedScope ? '#059669' : '#d97706', fontWeight: 700 }}>
-              {isCertifiedScope ? 'Within Benchmark Scope' : 'Extended Operational'}
+            <span style={{ color: '#059669', fontWeight: 700 }}>
+              Within Benchmark Scope
             </span>
           </label>
           <select
             id="spatial-horizon-select"
             value={leadHours}
-            onChange={(e) => setLeadHours(Number(e.target.value))}
+            onChange={(e) => setLeadHours(clampToBenchmarkLead(Number(e.target.value)))}
             style={{
               width: '100%',
               padding: '8px 12px',
               borderRadius: '6px',
-              border: `1px solid ${isCertifiedScope ? '#cbd5e1' : '#f59e0b'}`,
+              border: '1px solid #cbd5e1',
               fontSize: '0.88rem',
               fontWeight: 600,
               color: '#1e293b',
-              background: isCertifiedScope ? '#f8fafc' : '#fffbeb',
+              background: '#f8fafc',
             }}
           >
-            <optgroup label="Within Frozen Benchmark Lead Scope (<=240h)">
-              {HORIZON_OPTIONS.filter((h) => h.scope === 'FROZEN_BENCHMARK_LEAD_SCOPE').map((h) => (
-                <option key={h.lead} value={h.lead}>
-                  {h.label}
-                </option>
-              ))}
-            </optgroup>
-            <optgroup label="Extended Operational Horizon (264h–384h)">
-              {HORIZON_OPTIONS.filter((h) => h.scope === 'EXTENDED_OPERATIONAL_HORIZON').map((h) => (
-                <option key={h.lead} value={h.lead}>
-                  {h.label}
-                </option>
-              ))}
-            </optgroup>
+            {HORIZON_OPTIONS.map((h) => (
+              <option key={h.lead} value={h.lead}>
+                {h.label}
+              </option>
+            ))}
           </select>
         </div>
       </div>

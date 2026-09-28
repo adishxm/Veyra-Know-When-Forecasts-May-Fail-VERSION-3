@@ -162,10 +162,24 @@ export const App: React.FC = () => {
           setLat(null);
           setLon(null);
         }
-        // Default selected lead hours to peak risk lead hours or canonical 24h
-        if (data.timeline && data.timeline.length > 0) {
-          const peak = data.summary?.max_risk_lead_hours ?? 24;
-          setSelectedLeadHours(peak);
+        // Default selected lead hours to peak risk lead hours or canonical 24h within visible horizons
+        const effectiveTimeline = mode === 'full_16d' && data.timeline
+          ? data.timeline.filter((p) => p.lead_hours <= 240)
+          : data.timeline;
+        if (effectiveTimeline && effectiveTimeline.length > 0) {
+          const candidateLead = data.summary?.max_risk_lead_hours;
+          const isCandidateVisible = candidateLead != null && effectiveTimeline.some((p) => p.lead_hours === candidateLead);
+          if (isCandidateVisible) {
+            setSelectedLeadHours(candidateLead);
+          } else {
+            const valid = effectiveTimeline.filter((p) => p.bust_probability !== null && !p.abstain);
+            if (valid.length > 0) {
+              const maxPt = valid.reduce((max, p) => (p.bust_probability ?? -1) > (max.bust_probability ?? -1) ? p : max, valid[0]);
+              setSelectedLeadHours(maxPt.lead_hours);
+            } else {
+              setSelectedLeadHours(effectiveTimeline[0].lead_hours);
+            }
+          }
         }
       }
     } catch (err: any) {
@@ -178,16 +192,78 @@ export const App: React.FC = () => {
     }
   };
 
+  // Filter timeline for presentation: in full_16d mode, limit presentation to 10 days (<= 240h)
+  const visibleTimeline = useMemo(() => {
+    if (!dashboardData?.timeline) return null;
+    if (mode === 'full_16d') {
+      return dashboardData.timeline.filter((p) => p.lead_hours <= 240);
+    }
+    return dashboardData.timeline;
+  }, [dashboardData?.timeline, mode]);
+
+  // Derive presentation summary consistent with visible <=240h horizons
+  const visibleSummary = useMemo(() => {
+    if (!dashboardData?.summary) return null;
+    if (mode !== 'full_16d' || !visibleTimeline) {
+      return dashboardData.summary;
+    }
+    const validPoints = visibleTimeline.filter(
+      (p) => p.bust_probability !== null && !p.abstain
+    );
+    const availableCnt = validPoints.length;
+    const totalPts = visibleTimeline.length;
+    const abstainedCnt = totalPts - availableCnt;
+
+    if (availableCnt === 0) {
+      return {
+        ...dashboardData.summary,
+        available_points: 0,
+        abstained_points: abstainedCnt,
+        total_points: totalPts,
+        max_bust_probability: null,
+        max_risk_level: null,
+        max_risk_lead_hours: null,
+        mean_bust_probability: null,
+        elevated_risk_points: 0,
+        first_elevated_risk_lead_hours: null,
+      };
+    }
+
+    const maxPt = validPoints.reduce((max, p) =>
+      (p.bust_probability ?? -1) > (max.bust_probability ?? -1) ? p : max
+    , validPoints[0]);
+
+    const elevatedPts = validPoints.filter(
+      (p) => p.risk_level === 'MEDIUM' || p.risk_level === 'HIGH' || p.risk_level === 'CRITICAL'
+    );
+    const firstElevated = elevatedPts.length > 0 ? elevatedPts[0].lead_hours : null;
+    const probs = validPoints.map((p) => p.bust_probability as number);
+    const meanProb = Math.round((probs.reduce((a, b) => a + b, 0) / probs.length) * 10000) / 10000;
+
+    return {
+      ...dashboardData.summary,
+      available_points: availableCnt,
+      abstained_points: abstainedCnt,
+      total_points: totalPts,
+      max_bust_probability: maxPt.bust_probability,
+      max_risk_level: maxPt.risk_level,
+      max_risk_lead_hours: maxPt.lead_hours,
+      mean_bust_probability: meanProb,
+      elevated_risk_points: elevatedPts.length,
+      first_elevated_risk_lead_hours: firstElevated,
+    };
+  }, [dashboardData?.summary, mode, visibleTimeline]);
+
   // Active timeline point being inspected in VerificationPanel
   const activeTimelinePoint = useMemo<DashboardTimelinePoint | null>(() => {
-    if (!dashboardData?.timeline) return null;
-    if (selectedLeadHours === null) return dashboardData.timeline[0] || null;
+    if (!visibleTimeline || visibleTimeline.length === 0) return null;
+    if (selectedLeadHours === null) return visibleTimeline[0] || null;
     return (
-      dashboardData.timeline.find((p) => p.lead_hours === selectedLeadHours) ||
-      dashboardData.timeline[0] ||
+      visibleTimeline.find((p) => p.lead_hours === selectedLeadHours) ||
+      visibleTimeline[0] ||
       null
     );
-  }, [dashboardData, selectedLeadHours]);
+  }, [visibleTimeline, selectedLeadHours]);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -244,9 +320,9 @@ export const App: React.FC = () => {
               )}
 
               {/* Multi-Horizon Risk Timeline Chart */}
-              {dashboardData?.timeline && dashboardData.timeline.length > 0 ? (
+              {visibleTimeline && visibleTimeline.length > 0 ? (
                 <TimelineChart
-                  timeline={dashboardData.timeline}
+                  timeline={visibleTimeline}
                   selectedLeadHours={selectedLeadHours}
                   onSelectHorizon={(hours) => setSelectedLeadHours(hours)}
                   variable={variable}
@@ -282,7 +358,7 @@ export const App: React.FC = () => {
             <VerificationPanel
               prediction={dashboardData?.selected_prediction || null}
               selectedPoint={activeTimelinePoint}
-              summary={dashboardData?.summary || null}
+              summary={visibleSummary}
               scientificContext={dashboardData?.scientific_context || null}
               locationQuery={location}
               variable={variable}
@@ -299,7 +375,7 @@ export const App: React.FC = () => {
             onNavigateToDisagreement={(loc, v, lh) => {
               if (loc) setDisagreementLocation(loc);
               if (v) setDisagreementVariable(v);
-              if (lh) setDisagreementLeadHours(lh);
+              if (lh) setDisagreementLeadHours(lh > 240 ? 24 : lh);
               setView('disagreement');
             }}
           />

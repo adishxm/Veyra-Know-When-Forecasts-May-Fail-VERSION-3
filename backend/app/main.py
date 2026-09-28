@@ -75,10 +75,12 @@ def create_application() -> FastAPI:
     assets_dir = frontend_dist / "assets"
     if assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="frontend-assets")
+        app.mount("/Veyra-Know-When-Forecasts-May-Fail/assets", StaticFiles(directory=str(assets_dir)), name="frontend-assets-gh")
     elif not assets_dir.exists():
         try:
             assets_dir.mkdir(parents=True, exist_ok=True)
             app.mount("/assets", StaticFiles(directory=str(assets_dir), check_dir=False), name="frontend-assets")
+            app.mount("/Veyra-Know-When-Forecasts-May-Fail/assets", StaticFiles(directory=str(assets_dir), check_dir=False), name="frontend-assets-gh")
         except OSError:
             pass
 
@@ -87,6 +89,8 @@ def create_application() -> FastAPI:
 
     @app.get("/dashboard", include_in_schema=False)
     @app.get("/dashboard/", include_in_schema=False)
+    @app.get("/Veyra-Know-When-Forecasts-May-Fail", include_in_schema=False)
+    @app.get("/Veyra-Know-When-Forecasts-May-Fail/", include_in_schema=False)
     async def dashboard():
         """Serve built frontend dashboard single-page app."""
         index_file = frontend_dist / "index.html"
@@ -131,7 +135,7 @@ def create_application() -> FastAPI:
         Preserves API routes, docs, and assets while allowing client-side deep links.
         """
         # Guard against intercepting API or system endpoints
-        if full_path.startswith(("v1", "docs", "redoc", "openapi.json", "assets")):
+        if full_path.startswith(("v1", "docs", "redoc", "openapi.json", "assets", "Veyra-Know-When-Forecasts-May-Fail/assets")):
             return JSONResponse(status_code=404, content={"detail": "Not Found"})
 
         index_file = frontend_dist / "index.html"

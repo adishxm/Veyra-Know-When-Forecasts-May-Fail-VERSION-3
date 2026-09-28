@@ -207,20 +207,29 @@ describe('ForecastRevisionPanel Component (Day 30)', () => {
     expect(screen.queryByText(/RUN-TO-RUN REVISION/i)).not.toBeInTheDocument();
   });
 
-  it('updates scope indicators when horizon changes from 24h to 264h', async () => {
+  it('restricts forecast lead horizons strictly to benchmark scope (24h to 240h) and clamps invalid initial lead', async () => {
     vi.spyOn(apiClient, 'getForecastRevision').mockResolvedValue({
       data: createMockRevisionResponse({
-        lead_hours: 264,
-        is_certified_horizon: false,
-        scientific_scope: 'EXTENDED_OPERATIONAL_HORIZON',
+        lead_hours: 24,
+        is_certified_horizon: true,
+        scientific_scope: 'FROZEN_BENCHMARK_LEAD_SCOPE',
       }),
     });
 
+    // Attempting to pass stale/invalid 264h should safely clamp to benchmark scope
     render(<ForecastRevisionPanel initialLocation="Kolkata" initialLeadHours={264} />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Extended Operational Horizon \(264h–384h\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/Within Frozen Benchmark Lead Scope \(<= 240h\)/i)).toBeInTheDocument();
     });
+
+    const horizonSelect = screen.getByLabelText(/FORECAST HORIZON \(LEAD HOURS\)/i) as HTMLSelectElement;
+    const options = Array.from(horizonSelect.options).map((opt) => Number(opt.value));
+
+    // Only 24h through 240h should be present
+    expect(options).toEqual([24, 48, 72, 96, 120, 144, 168, 192, 216, 240]);
+    expect(options.some((v) => v > 240)).toBe(false);
+    expect(screen.queryByText(/Extended Operational Horizon/i)).not.toBeInTheDocument();
   });
 
   it('uses frozen benchmark scope wording without claiming live certification', async () => {

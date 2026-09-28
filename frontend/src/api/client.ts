@@ -28,13 +28,16 @@ import {
   CrossProviderDisagreementResponse,
 } from './types';
 
-// Resolve base API URL from environment variable or fallback to http://127.0.0.1:8000 in dev
+// Resolve base API URL:
+// In browser runtime, use relative URL (empty string '') so requests automatically target
+// whichever host/port served the application (e.g. localhost:8100, localhost:8000).
+// In non-browser (e.g. Node tests), fallback to VITE_API_BASE_URL or http://127.0.0.1:8000.
 const DEFAULT_BASE_URL =
-  import.meta.env?.VITE_API_BASE_URL !== undefined && import.meta.env.VITE_API_BASE_URL !== ''
-    ? import.meta.env.VITE_API_BASE_URL
-    : import.meta.env.DEV
-    ? 'http://127.0.0.1:8000'
-    : '';
+  typeof window !== 'undefined'
+    ? (import.meta.env?.VITE_API_BASE_URL && import.meta.env.DEV
+        ? import.meta.env.VITE_API_BASE_URL
+        : '')
+    : (import.meta.env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000');
 
 
 export class VeyraApiClient {

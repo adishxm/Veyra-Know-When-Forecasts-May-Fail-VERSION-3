@@ -365,32 +365,20 @@ describe('SpatialReliabilityPanel Component', () => {
     });
   });
 
-  it('distinguishes benchmark scope (<=240h) from extended operational horizon (>240h)', async () => {
-    vi.spyOn(apiClient, 'getSpatialReliability').mockResolvedValue({
-      data: createMockSpatialResponse({
-        lead_hours: 384,
-        is_certified_horizon: false,
-        scientific_scope: 'EXTENDED_OPERATIONAL_HORIZON',
-      }),
-    });
-
+  it('restricts forecast lead horizons strictly to benchmark scope (24h to 240h)', async () => {
     render(<SpatialReliabilityPanel />);
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /Refresh Spatial Intelligence/i })).toBeInTheDocument();
     });
 
-    // Switch horizon to 384h
-    const horizonSelect = screen.getByLabelText(/Forecast Lead Horizon/i);
-    fireEvent.change(horizonSelect, { target: { value: '384' } });
+    const horizonSelect = screen.getByLabelText(/Forecast Lead Horizon/i) as HTMLSelectElement;
+    const options = Array.from(horizonSelect.options).map((opt) => Number(opt.value));
 
-    // Refresh
-    const refreshBtn = screen.getByRole('button', { name: /Refresh Spatial Intelligence/i });
-    fireEvent.click(refreshBtn);
-
-    await waitFor(() => {
-      expect(screen.getAllByText(/EXTENDED OPERATIONAL/i).length).toBeGreaterThan(0);
-    });
+    // Only 24h through 240h should be present
+    expect(options).toEqual([24, 48, 72, 96, 120, 144, 168, 192, 216, 240]);
+    expect(options.some((v) => v > 240)).toBe(false);
+    expect(screen.queryByText(/Extended Operational Horizon/i)).not.toBeInTheDocument();
   });
 
   it('displays error alert when API call fails', async () => {

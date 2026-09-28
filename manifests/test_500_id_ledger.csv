@@ -471,7 +471,7 @@ TEST-UI-19,frontend/src/test/ForecastDisagreement.test.tsx,renders the header wi
 TEST-UI-20,frontend/src/test/ForecastDisagreement.test.tsx,strictly separates calibrated P(BUST) from ensemble spread diagnostics,pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
 TEST-UI-21,frontend/src/test/SpatialReliability.test.tsx,triggers a new backend evaluation when changing variable,pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
 TEST-UI-22,frontend/src/test/SpatialReliability.test.tsx,renders discrete markers corresponding to evaluated valid points,pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
-TEST-UI-23,frontend/src/test/SpatialReliability.test.tsx,distinguishes benchmark scope (<=240h) from extended operational horizon (>240h),pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
+TEST-UI-23,frontend/src/test/SpatialReliability.test.tsx,restricts forecast lead horizons strictly to benchmark scope (24h to 240h),pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
 TEST-UI-24,frontend/src/test/ScientificCertification.test.tsx,renders CERTIFIED EVIDENCE SCOPE badge when prediction is certified,pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
 TEST-UI-25,frontend/src/test/Day24ProbabilisticIntelligence.test.tsx,renders operational trust banner and conformal certainty badges,pass,Frontend Dashboard & Telemetry,Verified in Vitest Suite
 TEST-OPS-01,backend/tests/test_rollback_governance.py,test_rollback_procedure_manifest_completeness,pass,Operational Readiness & Release,Verified in Round-2 CI Test Suite

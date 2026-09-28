@@ -58,6 +58,9 @@ class LiveLogisticModelService(BaseModelService):
             manager = ModelArtifactManager(artifacts_dir=self.artifacts_dir)
             loaded_model, _, meta_dict = manager.load_artifact(artifact_name=self.artifact_name)
             self.model = loaded_model
+            if self.model and hasattr(self.model, "model") and self.model.model is not None:
+                if not hasattr(self.model.model, "multi_class"):
+                    self.model.model.multi_class = "auto"
             self.metadata = meta_dict or {}
             self.model_version = self.metadata.get("model_version", "baseline-logistic-v1.0")
             self.is_ready = self.model.is_trained
