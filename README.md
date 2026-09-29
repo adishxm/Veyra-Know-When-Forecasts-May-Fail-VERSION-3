@@ -945,6 +945,10 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 ### Team HEXARK (SIH 2026 — Problem Statement 26079)
 Developed for the **Smart India Hackathon 2026** under the theme **Disaster Management**, addressed to the **Ministry of Earth Sciences (MoES)** and **National Centre for Medium Range Weather Forecasting (NCMRWF)**.
 
+- **Aditya Kumar Sharma** ([@adishxm](https://github.com/adishxm))
+- **Rupanjan Dutta** ([@RupanjanDutta2006](https://github.com/RupanjanDutta2006))
+- **Parinidhi Jain** ([@ParinidhiJain101](https://github.com/ParinidhiJain101))
+
 ### Operational Disclaimer
 > [!IMPORTANT]
 > **Veyra Sentinel is an advisory diagnostic tool designed to assist human meteorologists.** It does not replace certified national meteorological agencies (e.g., India Meteorological Department - IMD) in issuing official forecasts, watches, or warnings. All operational disaster mitigation decisions must be authorized by certified meteorologists and disaster management authorities in accordance with standard operating procedures.
