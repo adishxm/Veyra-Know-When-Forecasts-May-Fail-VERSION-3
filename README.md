@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
   <a href="docs/governance/VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md"><img src="https://img.shields.io/badge/Governance-V2%20Manual%20Certified-blueviolet.svg?style=for-the-badge&logo=gitbook" alt="V2 Manual Certified" /></a>
   <a href="artifacts/v2_95plus_scorecards.json"><img src="https://img.shields.io/badge/Scorecard-Sci%2098%20%7C%20Eng%2099%20%7C%20Rel%2096-brightgreen.svg?style=for-the-badge" alt="Scorecard 95+ Non-Compensatory" /></a>
-  <img src="https://img.shields.io/badge/Total%20Tests-1132%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="1132 Total Tests Passed" />
+  <img src="https://img.shields.io/badge/Total%20Tests-1138%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="1138 Total Tests Passed" />
   <img src="https://img.shields.io/badge/Gates%20Status-100%25%20Passed-brightgreen.svg?style=for-the-badge" alt="All Mandatory Release Gates Passed" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.13-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%206-61dafb.svg?style=for-the-badge&logo=react" alt="React 19" />
@@ -75,14 +75,14 @@ Cryptographic integrity and provenance guarantees are certified under the [`rele
 - [`release/ARTIFACT_HASHES.json`](release/ARTIFACT_HASHES.json): Exact SHA-256 digests for all production models, calibrators, schemas, and test fixtures.
 - [`release/DATA_MANIFEST.json`](release/DATA_MANIFEST.json): Station coordinates, period of record (2018–2023), split dates, and missingness rates for 25 IMD stations.
 - [`release/MODEL_MANIFEST.json`](release/MODEL_MANIFEST.json): V3 LightGBM hyperparameter architecture, feature list, and calibration mappings.
-- [`release/TEST_MANIFEST.json`](release/TEST_MANIFEST.json): Certified test catalog documenting 1,003 backend and 129 frontend test cases.
+- [`release/TEST_MANIFEST.json`](release/TEST_MANIFEST.json): Certified test catalog documenting 1,006 backend and 132 frontend test cases.
 - [`release/CLAIM_MANIFEST.json`](release/CLAIM_MANIFEST.json): Machine-readable claim verification matrix mapped to empirical test suites.
 
 ### 0.4 Verification Suite Pass Rate
-- **Backend Tests:** `1,003 / 1,003` pytest suites passed (0 failures).
-- **Frontend Tests:** `129 / 129` vitest suites passed (0 failures).
+- **Backend Tests:** `1,006 / 1,006` pytest suites passed (0 failures).
+- **Frontend Tests:** `132 / 132` vitest suites passed (0 failures).
 - **Release & V2 Gate Suites:** `100% passed` via `scripts/gate_test_v2_manual.py` and `scripts/run_release_gates.py`.
-- **Total Automated Tests:** **1,132 / 1,132 PASSED (100%)**.
+- **Total Automated Tests:** **1,138 / 1,138 PASSED (100%)**.
 
 ---
 
@@ -631,7 +631,7 @@ The frontend is an enterprise meteorological workstation built with **React 19, 
 
 ### Option A: One-Click Launch (Recommended for Windows)
 
-Simply double-click [`launch.bat`](file:///c:/Users/adity/OneDrive/Desktop/SIH26079-RII/launch.bat) or run from your terminal:
+Simply double-click [`launch.bat`](launch.bat) or run from your terminal:
 
 ```cmd
 launch.bat
@@ -642,7 +642,7 @@ launch.bat
 2. Checks backend dependencies and automatically runs `pip install -r requirements.txt` if any are missing.
 3. Checks `frontend/node_modules` and automatically runs `npm install` on first launch.
 4. Verifies model binary weights (`models/v3/lightgbm_v3_challenger.joblib`) are complete (1.0 MB) and not un-pulled stubs.
-5. Launches the **FastAPI Predictive Engine** on port `8000`.
+5. Launches the **FastAPI Predictive Engine** on port `8000` (or falls back cleanly to `8001` if `8000` is in use).
 6. Launches the **Vite Sentinel Dashboard** on port `5173`.
 7. Opens `http://127.0.0.1:5173/Veyra-Know-When-Forecasts-May-Fail/` in your default browser.
 8. Cleanly terminates all servers and closes both spawned terminal windows on keypress.
@@ -652,8 +652,8 @@ launch.bat
 ### Option B: Manual Setup from Fresh Clone
 
 > [!IMPORTANT]
-> **Golden Architecture Rule: Always execute commands from the repository root (`SIH26079-RII`).**  
-> Do **NOT** `cd backend` before running `pytest` or `uvicorn`. Python resolves the `backend.app...` module hierarchy relative to the repository root. If you run from inside `backend/`, Python will fail with `ModuleNotFoundError: No module named 'backend'`.
+> **Golden Architecture Rule: Always execute backend commands from the repository root (`Veyra-Know-When-Forecasts-May-Fail-VERSION-3`).**  
+> Do **NOT** run `pytest` from parent directories containing multiple repositories or `cd backend` before running `pytest` or `uvicorn`. Python resolves the `backend.app...` module hierarchy relative to the repository root where `pytest.ini` lives. If you run from inside `backend/` or an external parent directory, Python will fail with `ModuleNotFoundError: No module named 'backend'`.
 
 #### 1. Prerequisites
 - **Python 3.10 or 3.11** (`python --version`)
@@ -664,8 +664,8 @@ launch.bat
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-2.git
-cd Veyra-Know-When-Forecasts-May-Fail-VERSION-2
+git clone https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-3.git
+cd Veyra-Know-When-Forecasts-May-Fail-VERSION-3
 
 # 2. Create and activate a Python virtual environment (recommended)
 # Windows (PowerShell):
@@ -705,11 +705,45 @@ npm run dev
 ```
 *Frontend runs at `http://127.0.0.1:5173/Veyra-Know-When-Forecasts-May-Fail/`*
 
+#### 4. Running the Tests & Verification
+
+##### Frontend Test Command (Vitest)
+```bash
+# Option 1: Run directly from project root
+npm --prefix frontend test
+
+# Option 2: Run inside frontend directory
+cd frontend
+npm test
+
+# Run frontend tests in interactive watch / developer mode
+npm test -- --watch
+
+# Validate frontend production build (TypeScript strict check + Vite bundler)
+npm run build
+cd ..
+```
+
+##### Backend Test Command (Pytest)
+```bash
+# Run all 1,006 backend tests from repository root (quiet mode)
+pytest backend/tests -q
+
+# Run all backend tests with verbose output
+python -m pytest backend/tests/ -v
+```
+
+##### Full Master Release Gates Verification
+```bash
+# Execute all mandatory release gates (G1, G2, G3, G8, G11, G15, G16, G17)
+python scripts/run_release_gates.py
+```
+
 ---
 
 ## 14. Reproducibility & Master Verification Suite
 
-Veyra Sentinel includes an automated verification suite containing **1,043 verified passing automated tests (932 backend pytest + 111 frontend vitest tests)** with a clean production build, independently audited at commit [`c9903fa`](audit/baseline.md).
+Veyra Sentinel includes an automated verification suite containing **1,138 verified passing automated tests (1,006 backend pytest + 132 frontend vitest tests)** with a clean production build, independently audited at commit [`d843dcf`](release/RELEASE_MANIFEST.json).
 
 ### 14.1 Master Acceptance Gates & Release Gates Execution
 To verify the complete 13-phase integration lifecycle in a single command, execute the master orchestrator from the repository root:
@@ -747,21 +781,21 @@ Authoritative release candidate ready: sih-round2-submission-v1.0.0
 From the **repository root**:
 
 ```bash
-# Run all 952 backend tests (quiet mode)
-python -m pytest backend/tests/ -q
+# Run all 1,006 backend tests from repository root (quiet mode)
+pytest backend/tests -q
 
 # Run all backend tests with verbose output
 python -m pytest backend/tests/ -v
 
-# Run with standard 'pytest' command (uses pytest.ini configuration)
-pytest -v
+# Run specific single test file
+pytest backend/tests/test_scientific_certification.py -v
 ```
 
 ### 14.3 Running Specific Test Suites by Architecture / Gate
 
 | Test Domain | Target Blueprint Gate | Exact Pytest Command | Passing Tests |
 |:---|:---:|:---|:---:|
-| **All Tests (Full Regression)** | Gates 1–11 & P0–P9 | `python -m pytest backend/tests/ -q` | **952 passed** |
+| **All Tests (Full Regression)** | Gates 1–11 & P0–P9 | `python -m pytest backend/tests/ -q` | **1,006 passed** |
 | **V3 Model Integrity & Parity** | Phase 3 (G1–G3) | `python -m pytest backend/tests/test_v3_*.py -q` | **60 passed** |
 | **Ported Time Contract & Revision** | Phase 4 & 5 (P4, G9) | `python -m pytest backend/tests/test_day34_time_contract_revision_store.py -q` | **25 passed** |
 | **Provider Disagreement & Adapters** | Phase 4 (P4) | `python -m pytest backend/tests/test_day37_provider_adapters.py backend/tests/test_day38_cross_provider_disagreement.py -q` | **28 passed** |
@@ -779,14 +813,20 @@ pytest -v
 
 ### 14.4 Running Frontend Tests & Production Build
 
-```bash
-# Run all 111 frontend vitest tests (from frontend/)
-cd frontend
-npm test -- --run
-cd ..
+Veyra uses **Vitest** for high-performance React component, contract parity, and telemetry verification.
 
-# Validate frontend production build (type checking + Vite bundler)
+```bash
+# Run all 132 frontend vitest tests (from project root)
+npm --prefix frontend test
+
+# OR run directly from inside frontend directory
 cd frontend
+npm test
+
+# Run frontend tests in interactive watch mode
+npm test -- --watch
+
+# Validate frontend production build (TypeScript strict check + Vite bundler)
 npm run build
 cd ..
 ```

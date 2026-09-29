@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
 import { ResearchMetrics } from '../components/ResearchMetrics';
 import { apiClient } from '../api/client';
+import { ApiError } from '../api/types';
 
 describe('V2 Manual F14 / VULN-P14-001 Research Metrics Truth & Provenance', () => {
   beforeEach(() => {
@@ -13,14 +13,14 @@ describe('V2 Manual F14 / VULN-P14-001 Research Metrics Truth & Provenance', () 
     // Simulate failed API response
     vi.spyOn(apiClient, 'getComprehensiveEvaluation').mockResolvedValue({
       data: null,
-      error: 'Backend API unavailable',
+      error: { status_code: 503, message: 'Backend API unavailable' } as ApiError,
     });
 
     render(<ResearchMetrics />);
 
     // Must show explicit unverified fallback badge rather than silent authoritative certification
     await waitFor(() => {
-      const badge = screen.getByTestId ? document.getElementById('metrics-provenance-badge') : document.getElementById('metrics-provenance-badge');
+      const badge = document.getElementById('metrics-provenance-badge');
       expect(badge).toBeTruthy();
       expect(badge?.textContent).toContain('UNVERIFIED FALLBACK');
       expect(badge?.getAttribute('data-provenance')).toBe('UNVERIFIED_FALLBACK');
@@ -130,7 +130,7 @@ describe('V2 Manual F14 / VULN-P14-001 Research Metrics Truth & Provenance', () 
 
     vi.spyOn(apiClient, 'getComprehensiveEvaluation').mockResolvedValue({
       data: mockLiveMetrics as any,
-      error: null,
+      error: undefined,
     });
 
     render(<ResearchMetrics />);
@@ -247,7 +247,7 @@ describe('V2 Manual F14 / VULN-P14-001 Research Metrics Truth & Provenance', () 
 
     vi.spyOn(apiClient, 'getComprehensiveEvaluation').mockResolvedValue({
       data: payload as any,
-      error: null,
+      error: undefined,
     });
 
     render(<ResearchMetrics />);

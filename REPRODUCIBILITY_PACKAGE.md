@@ -148,14 +148,17 @@ To achieve operational certification, the candidate model was required to satisf
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-2.git
-cd Veyra-Know-When-Forecasts-May-Fail-VERSION-2
+git clone https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-3.git
+cd Veyra-Know-When-Forecasts-May-Fail-VERSION-3
 
 # 2. Install pinned dependencies
 python -m pip install -r requirements.txt
 
-# 3. Run full automated test suite (577 tests)
-python -m pytest backend/tests/ -v
+# 3. Run full automated backend test suite (1,006 tests)
+python -m pytest backend/tests/ -q
+
+# 4. Run frontend test suite (132 vitest tests)
+npm --prefix frontend test
 
 # 4. Verify artifact checksums
 python -c "
