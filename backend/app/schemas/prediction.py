@@ -121,15 +121,15 @@ class PredictionRequest(BaseModel):
     )
     model_type: Optional[str] = Field(
         default=None,
-        description="Optional model type identifier or compatibility override (e.g., prototype-gbm-v1, baseline-logistic-v1.0, veyra-v3-benchmark-lightgbm)",
-        examples=["prototype-gbm-v1"],
+        description="Optional model type identifier or compatibility override (e.g., veyra-v3-benchmark-lightgbm, prototype-gbm-v1, baseline-logistic-v1.0). Defaults to authoritative V3 LightGBM.",
+        examples=["veyra-v3-benchmark-lightgbm"],
         json_schema_extra={
             "enum": [
+                "veyra-v3-benchmark-lightgbm",
                 "prototype-gbm-v1",
                 "baseline-logistic-v1.0",
-                "veyra-v3-benchmark-lightgbm",
             ],
-            "example": "prototype-gbm-v1",
+            "example": "veyra-v3-benchmark-lightgbm",
         },
     )
     target_date: Optional[str] = Field(
@@ -144,7 +144,7 @@ class PredictionRequest(BaseModel):
             "example": {
                 "location": "Kolkata",
                 "variable": "temperature_2m",
-                "model_type": "prototype-gbm-v1",
+                "model_type": "veyra-v3-benchmark-lightgbm",
             }
         },
     }
