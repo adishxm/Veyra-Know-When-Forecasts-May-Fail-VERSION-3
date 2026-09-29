@@ -17,6 +17,8 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
+import { getDocsUrl } from '../api/client';
+
 export type ActiveView =
   | 'sentinel'
   | 'spatial'
@@ -30,7 +32,7 @@ export type ActiveView =
   | 'models'
   | 'docs';
 
-const DOCS_EXTERNAL_URL = 'http://127.0.0.1:8000/docs';
+const DOCS_EXTERNAL_URL = getDocsUrl();
 
 interface NavigationProps {
   view: ActiveView;

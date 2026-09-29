@@ -32,15 +32,33 @@ import {
 // In browser runtime, if an explicit VITE_API_URL or VITE_API_BASE_URL is set (e.g. Render backend in production),
 // use it. Otherwise, use relative URL (empty string '') so requests automatically target
 // whichever host/port served the application (e.g. localhost:8100, localhost:8000, Vite proxy).
-// In non-browser (e.g. Node tests), fallback to configured URL or http://127.0.0.1:8000.
 const configuredApiUrl =
   (typeof import.meta !== 'undefined' && import.meta.env
     ? (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '')
     : '') as string;
 
-const DEFAULT_BASE_URL =
-  configuredApiUrl ||
-  (typeof window !== 'undefined' ? '' : 'http://127.0.0.1:8000');
+export const LIVE_RENDER_API_URL = 'https://veyra-know-when-forecasts-may-fail-gqpg.onrender.com';
+
+export const getApiBaseUrl = (): string => {
+  if (configuredApiUrl) {
+    return configuredApiUrl.replace(/\/+$/, '');
+  }
+  if (
+    typeof window !== 'undefined' &&
+    (window.location.hostname.includes('github.io') || window.location.hostname.endsWith('.pages.dev'))
+  ) {
+    return LIVE_RENDER_API_URL;
+  }
+  return typeof window !== 'undefined' ? '' : 'http://127.0.0.1:8000';
+};
+
+export const getDocsUrl = (): string => {
+  const base = getApiBaseUrl();
+  return base ? `${base}/docs` : 'http://127.0.0.1:8000/docs';
+};
+
+const DEFAULT_BASE_URL = getApiBaseUrl();
+
 
 
 

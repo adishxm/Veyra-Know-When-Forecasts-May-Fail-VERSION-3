@@ -1,4 +1,5 @@
 import React from 'react';
+import { getDocsUrl } from '../api/client';
 
 interface FooterProps {
   modelVersion?: string | null;
@@ -31,17 +32,17 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
           <div className="footer-meta-item">
             <a
-              href="/docs"
+              href={getDocsUrl()}
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}
             >
               API Docs →
             </a>
-
           </div>
         </div>
       </div>
     </footer>
   );
 };
+

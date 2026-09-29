@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ExternalLink, RefreshCw, Shield, FileText, CheckCircle2 } from 'lucide-react';
+import { getDocsUrl } from '../api/client';
 
-const DOCS_URL = 'http://127.0.0.1:8000/docs';
+const DOCS_URL = getDocsUrl();
 
 export const ApiDocsView: React.FC = () => {
   const [iframeKey, setIframeKey] = useState<number>(0);

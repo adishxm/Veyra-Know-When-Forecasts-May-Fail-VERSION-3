@@ -17,7 +17,7 @@ import { SpatialReliabilityPanel } from './components/SpatialReliabilityPanel';
 import { MultiLocationPanel } from './components/MultiLocationPanel';
 import { ForecastDisagreementPanel } from './components/ForecastDisagreementPanel';
 import { ForecastRevisionPanel } from './components/ForecastRevisionPanel';
-import { apiClient } from './api/client';
+import { apiClient, getApiBaseUrl, getDocsUrl } from './api/client';
 import { BENCHMARK_LOCATIONS } from './data/locations';
 import {
   DashboardIntelligenceResponse,
@@ -425,16 +425,16 @@ export const App: React.FC = () => {
             GitHub Repository
           </a>
           <a
-            href="http://127.0.0.1:8000/docs"
+            href={getDocsUrl()}
             target="_blank"
             rel="noreferrer"
           >
             FastAPI Documentation
           </a>
-          <a href="/v1/health" target="_blank" rel="noreferrer">
+          <a href={`${getApiBaseUrl() || ''}/v1/health`} target="_blank" rel="noreferrer">
             Health Check API
           </a>
-          <a href="/v1/metrics" target="_blank" rel="noreferrer">
+          <a href={`${getApiBaseUrl() || ''}/v1/metrics`} target="_blank" rel="noreferrer">
             Operational Metrics
           </a>
         </div>

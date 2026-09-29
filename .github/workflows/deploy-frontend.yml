@@ -40,8 +40,8 @@ jobs:
         working-directory: ./frontend # Change to '.' if frontend is at root
         env:
           # Pass your Render backend URL into the build step
-          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://veyra-know-when-forecasts-may-fail.onrender.com' }}
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_URL || 'https://veyra-know-when-forecasts-may-fail.onrender.com' }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://veyra-know-when-forecasts-may-fail-gqpg.onrender.com' }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_URL || 'https://veyra-know-when-forecasts-may-fail-gqpg.onrender.com' }}
           VITE_BASE_PATH: '/Veyra-Know-When-Forecasts-May-Fail-VERSION-3/'
         run: npm run build
 
