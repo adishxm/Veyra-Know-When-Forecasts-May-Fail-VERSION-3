@@ -420,3 +420,38 @@ def test_phase9_forecast_bust_agent_integration():
     assert "UNSUPPORTED_GEOGRAPHIC_REGION" in resp_foreign.reason_codes
     assert resp_foreign.prediction_id is not None
     assert resp_foreign.human_approval_status == "PENDING"
+
+
+def test_v3_default_model_authority_direct_instantiation():
+    """VULN-P1-001: Direct instantiation of ModelIntegrationService defaults strictly to V3 challenger."""
+    from backend.app.services.model_integration_service import ModelIntegrationService
+    svc = ModelIntegrationService()
+    assert svc.active_model_name == "builder2_v3"
+    assert "builder2_v3" in svc._models
+    info = svc.get_active_model_info()
+    assert info.model_name == "builder2_v3"
+    assert info.expected_feature_count == 50
+
+
+def test_unsupported_foreign_geographies_never_certified():
+    """VULN-P9-002: Ensure foreign cities (Paris, Tokyo, Dubai, New York) are strictly uncertified."""
+    from backend.app.api.v1.endpoints.predict import create_forecast_bust_agent
+    agent = create_forecast_bust_agent()
+    for foreign_city in ["Paris", "Tokyo", "Dubai", "New York"]:
+        resp = agent.analyze(PredictionRequest(location=foreign_city))
+        assert resp.is_certified is False
+        assert resp.claim_scope == "UNCERTIFIED_EXPERIMENTAL"
+        assert resp.outside_certified_domain is True
+        assert getattr(resp.trust_state, "value", resp.trust_state) != "HIGH_CONFIDENCE"
+
+
+def test_error_and_traversal_fail_closed_certification():
+    """VULN-P1-003: Path traversal and error states fail closed with is_certified=False."""
+    from backend.app.api.v1.endpoints.predict import create_forecast_bust_agent
+    agent = create_forecast_bust_agent()
+    resp = agent.analyze(PredictionRequest(location="../../../../../../etc/passwd"))
+    assert resp.abstain is True
+    assert resp.is_certified is False
+    assert resp.claim_scope == "UNCERTIFIED_EXPERIMENTAL"
+    assert getattr(resp.trust_state, "value", resp.trust_state) == "UNAVAILABLE"
+    assert resp.certification.is_certified is False

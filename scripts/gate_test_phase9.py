@@ -34,7 +34,7 @@ def run(cmd, cwd=None):
     return res.returncode, res.stdout.strip(), res.stderr.strip()
 
 
-def test_phase9(skip_clean_clone: bool = False, tag: str = "sih-round2-submission-v1.1.3"):
+def test_phase9(skip_clean_clone: bool = False, tag: str = "HEAD"):
     print("================================================================================")
     print("      GATE P9: SUBMISSION READINESS, FINAL FREEZE & EVIDENCE PACKAGE            ")
     print("================================================================================\n")

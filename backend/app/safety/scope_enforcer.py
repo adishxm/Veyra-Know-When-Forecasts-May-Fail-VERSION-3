@@ -78,9 +78,22 @@ class ScopeEnforcer:
         uncert_var = False
         max_trust = TrustState.HIGH_CONFIDENCE
 
+        # Resolve coordinates dynamically if not explicitly supplied
+        effective_lat = latitude
+        effective_lon = longitude
+        if effective_lat is None or effective_lon is None:
+            try:
+                from backend.app.services.location_service import default_location_service
+                coords = default_location_service.resolve_coordinates(location)
+                if coords:
+                    effective_lat, effective_lon = coords
+            except Exception:
+                pass
+
         # 1. Geographic Scope Enforcement (A4)
         foreign_indicators = [
             "london", "new york", "new york city", "north pole", "south pole", "arctic", "antarctica", "pole", "ocean",
+            "paris", "tokyo", "dubai", "berlin", "moscow", "beijing", "sydney", "singapore", "toronto", "san francisco",
         ]
         if any(f in loc_clean for f in foreign_indicators):
             is_certified = False
@@ -89,17 +102,38 @@ class ScopeEnforcer:
                 f"Location '{location}' is outside the certified Indian operational domain. "
                 "Serving with uncertified experimental warning."
             )
-            reason_codes.append("UNSUPPORTED_GEOGRAPHIC_REGION")
+            if "UNSUPPORTED_GEOGRAPHIC_REGION" not in reason_codes:
+                reason_codes.append("UNSUPPORTED_GEOGRAPHIC_REGION")
+            max_trust = TrustState.LOW_CONFIDENCE
 
-        # Coordinate bounding box check if coordinates are provided
-        if latitude is not None and longitude is not None:
-            if not (6.0 <= latitude <= 37.5 and 68.0 <= longitude <= 98.0):
+        # Coordinate bounding box check (Indian Subcontinent: 6.0°–37.5°N, 68.0°–98.0°E)
+        if effective_lat is not None and effective_lon is not None:
+            if not (6.0 <= effective_lat <= 37.5 and 68.0 <= effective_lon <= 98.0):
                 is_certified = False
                 outside_domain = True
                 warnings.append(
-                    f"Coordinates ({latitude:.2f}°, {longitude:.2f}°) fall outside the Indian subcontinental domain."
+                    f"Coordinates ({effective_lat:.2f}°, {effective_lon:.2f}°) fall outside the certified Indian subcontinental domain."
                 )
-                reason_codes.append("OUT_OF_DOMAIN_COORDINATES")
+                if "OUT_OF_DOMAIN_COORDINATES" not in reason_codes:
+                    reason_codes.append("OUT_OF_DOMAIN_COORDINATES")
+                if "UNSUPPORTED_GEOGRAPHIC_REGION" not in reason_codes:
+                    reason_codes.append("UNSUPPORTED_GEOGRAPHIC_REGION")
+                max_trust = TrustState.LOW_CONFIDENCE
+        elif not outside_domain:
+            # Check against certified benchmark stations / Indian regional indicators
+            from backend.app.core.certification_policy import _CERTIFIED_STATION_LOWER_SET
+            is_known_in_domain = (
+                loc_clean in _CERTIFIED_STATION_LOWER_SET
+                or any(reg.lower() in loc_clean for reg in CERTIFIED_REGIONS)
+            )
+            if not is_known_in_domain:
+                is_certified = False
+                outside_domain = True
+                if "UNSUPPORTED_GEOGRAPHIC_REGION" not in reason_codes:
+                    reason_codes.append("UNSUPPORTED_GEOGRAPHIC_REGION")
+                warnings.append(
+                    f"Location '{location}' is not a recognized or certified station within the Indian operational domain."
+                )
                 max_trust = TrustState.LOW_CONFIDENCE
 
         # 2. Horizon Scope Enforcement (A5)
@@ -135,8 +169,8 @@ class ScopeEnforcer:
             reason_codes.append("UNCERTIFIED_VARIABLE")
             max_trust = TrustState.LOW_CONFIDENCE
 
-        # Cap Trust State per Invariant A3: Uncertified horizon, variable, or coordinates must NEVER serve as HIGH_CONFIDENCE
-        if (uncert_horizon or uncert_var or (latitude is not None and outside_domain)) and max_trust == TrustState.HIGH_CONFIDENCE:
+        # Cap Trust State per Invariant A3: Uncertified horizon, variable, coordinates or foreign geography must NEVER serve as HIGH_CONFIDENCE
+        if (uncert_horizon or uncert_var or outside_domain or not is_certified) and max_trust == TrustState.HIGH_CONFIDENCE:
             max_trust = TrustState.MODERATE_CONFIDENCE
 
         return ScopeValidationResult(

@@ -467,7 +467,7 @@ class ForecastBustAgent:
             analog_cards = []
 
         # Phase 9 Scope & OOD Reason Code & Trust State Resolution
-        is_certified = scope_result.is_certified if scope_result else True
+        is_certified = scope_result.is_certified if scope_result else False
         outside_domain = scope_result.outside_certified_domain if scope_result else False
         uncert_h = scope_result.uncertified_horizon if scope_result else False
         uncert_v = scope_result.uncertified_variable if scope_result else False
@@ -499,6 +499,19 @@ class ForecastBustAgent:
             model_sha256=model_meta.get("model_sha256"),
             calibrator_sha256=model_meta.get("calibrator_sha256"),
         )
+
+        # Fail-closed scientific certification:
+        # Never certify an uncertified scope, uncertified benchmark station, abstained, or unavailable state
+        if (
+            not cert_result.is_certified
+            or (scope_result is not None and not scope_result.is_certified)
+            or safety_assessment.abstain
+            or final_trust in (TrustState.ABSTAINED, TrustState.UNAVAILABLE)
+        ):
+            is_certified = False
+
+        if not is_certified and final_trust == TrustState.HIGH_CONFIDENCE:
+            final_trust = TrustState.MODERATE_CONFIDENCE
 
         return PredictionResponse(
             location=location,

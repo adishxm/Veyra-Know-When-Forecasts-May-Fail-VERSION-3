@@ -131,12 +131,25 @@ const FROZEN_V3_METRICS: ComprehensiveEvaluationResponse = {
 
 export const ResearchMetrics: React.FC = () => {
   const [metrics, setMetrics] = useState<ComprehensiveEvaluationResponse>(FROZEN_V3_METRICS);
+  const [provenance, setProvenance] = useState<'LIVE_API' | 'UNVERIFIED_FALLBACK' | 'LOADING'>('LOADING');
   const [activeTab, setActiveTab] = useState<'calibration' | 'leadtime' | 'spatial' | 'safety' | 'stratified' | 'burden'>('calibration');
 
   useEffect(() => {
-    apiClient.getComprehensiveEvaluation('v3').then(({ data }) => {
-      if (data) setMetrics(data);
-    });
+    let isMounted = true;
+    apiClient.getComprehensiveEvaluation('v3')
+      .then(({ data, error }) => {
+        if (!isMounted) return;
+        if (data && !error) {
+          setMetrics(data);
+          setProvenance('LIVE_API');
+        } else {
+          setProvenance('UNVERIFIED_FALLBACK');
+        }
+      })
+      .catch(() => {
+        if (isMounted) setProvenance('UNVERIFIED_FALLBACK');
+      });
+    return () => { isMounted = false; };
   }, []);
 
   const relDiag = metrics.discrimination_and_probability.reliability_diagram;
@@ -147,7 +160,7 @@ export const ResearchMetrics: React.FC = () => {
       <div className="glass-card" style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span
                 style={{
                   background: '#205493',
@@ -161,7 +174,27 @@ export const ResearchMetrics: React.FC = () => {
               >
                 Docs §18.1 • Release Gates
               </span>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--noaa-dark-blue)' }}>
+              <span
+                id="metrics-provenance-badge"
+                data-provenance={provenance}
+                style={{
+                  background: provenance === 'LIVE_API' ? '#0d6832' : provenance === 'UNVERIFIED_FALLBACK' ? '#b45309' : '#475569',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  textTransform: 'uppercase',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                {provenance === 'LIVE_API' && '● LIVE VERIFIED API'}
+                {provenance === 'UNVERIFIED_FALLBACK' && '⚠️ UNVERIFIED FALLBACK — BACKEND UNAVAILABLE'}
+                {provenance === 'LOADING' && '⏳ CONNECTING...'}
+              </span>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--noaa-dark-blue)', margin: 0 }}>
                 Scientific Evaluation & Verification Suite
               </h2>
             </div>
@@ -173,6 +206,9 @@ export const ResearchMetrics: React.FC = () => {
           <div style={{ textAlign: 'right', fontSize: '0.78rem', color: 'var(--noaa-muted)' }}>
             <div>Model: <strong>{metrics.model_name}</strong> ({metrics.model_version})</div>
             <div>Evaluated Test Samples: <strong>{metrics.sample_count.toLocaleString()}</strong> ({metrics.bust_count.toLocaleString()} Busts)</div>
+            <div style={{ marginTop: '2px', fontWeight: 600, color: provenance === 'LIVE_API' ? '#0d6832' : '#b45309' }}>
+              Data Provenance: {provenance === 'LIVE_API' ? 'Live Backend API (/v1/model/evaluation/v3)' : 'Static Baseline (Unverified Offline)'}
+            </div>
           </div>
         </div>
 

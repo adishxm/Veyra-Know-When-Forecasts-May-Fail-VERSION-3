@@ -107,7 +107,17 @@ def test_cli_historical_replay_rejects_synthetic_mode():
 def test_cli_historical_replay_succeeds_with_historical_mode(tmp_path):
     """CLI test: scripts/replay_historical.py passes with --mode historical."""
     tmp_json = tmp_path / "out.json"
-    cmd = [sys.executable, "scripts/replay_historical.py", "--mode", "historical", "--output-json", str(tmp_json)]
+    tmp_abst = tmp_path / "abst.json"
+    cmd = [
+        sys.executable,
+        "scripts/replay_historical.py",
+        "--mode",
+        "historical",
+        "--output-json",
+        str(tmp_json),
+        "--output-abstention-json",
+        str(tmp_abst),
+    ]
     res = subprocess.run(cmd, capture_output=True, text=True)
     assert res.returncode == 0
     assert "[PASS]" in res.stdout

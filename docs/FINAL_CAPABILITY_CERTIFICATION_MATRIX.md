@@ -48,7 +48,7 @@
 release_id: sih-round2-submission-v2.0.0
 claim_registry_version: 2.0.0 (manifests/CLAIM_REGISTRY.md)
 capability_registry_version: 2.0.0 (manifests/CAPABILITY_REGISTRY.md)
-dataset_id_and_hash: data/phase3/benchmark_real_dataset.jsonl (02fbb14dfb026...)
+dataset_id_and_hash: data/phase3/benchmark_real_dataset.jsonl (18556df7c3d1...)
 model_id_and_hash: models/v3/lightgbm_v3_challenger.joblib (00a84107469b7bb2...)
 calibrator_id_and_hash: models/v3/probability_calibrator_v3.joblib (9f448606ce0b7410...)
 feature_schema_hash: models/v3/feature_names.json (702ff4153fa84497...)

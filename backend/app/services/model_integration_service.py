@@ -145,10 +145,10 @@ class ModelIntegrationService(BaseModelIntegrationService):
             self._active_model_name = env_active
         elif custom_v3_dir or (custom_builder2_dir and "v3" in str(custom_builder2_dir)):
             self._active_model_name = "builder2_v3" if "builder2_v3" in self._models else "unavailable"
-        elif "builder2_gbm" in self._models:
-            self._active_model_name = "builder2_gbm"
         elif "builder2_v3" in self._models:
             self._active_model_name = "builder2_v3"
+        elif "builder2_gbm" in self._models:
+            self._active_model_name = "builder2_gbm"
         elif not self._models:
             self.register_model("unavailable", UnavailableModelService(), set_active=True)
             logger.warning("ModelIntegrationService initialized in UNAVAILABLE state (no valid artifacts found)")
@@ -168,6 +168,11 @@ class ModelIntegrationService(BaseModelIntegrationService):
         if name not in self._models:
             raise KeyError(f"Model '{name}' not found in registry. Available: {list(self._models.keys())}")
         self._active_model_name = name
+
+    @property
+    def active_model_name(self) -> str:
+        """Return the active model name string."""
+        return self._active_model_name
 
     @property
     def active_model(self) -> BaseModelService:

@@ -1,9 +1,9 @@
 {
   "framework": "vitest",
-  "test_suites": 21,
-  "test_files": 21,
-  "total_tests": 111,
-  "passed": 111,
+  "test_suites": 26,
+  "test_files": 26,
+  "total_tests": 129,
+  "passed": 129,
   "failed": 0,
   "errors": 0,
   "skipped": 0,
