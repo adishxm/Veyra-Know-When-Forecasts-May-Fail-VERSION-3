@@ -707,35 +707,45 @@ npm run dev
 
 #### 4. Running the Tests & Verification
 
-##### Frontend Test Command (Vitest)
+> [!NOTE]
+> **Automatic Dependency Resolution**: On a fresh clone or ZIP extraction, running `npm test` automatically runs `npm install` inside `frontend/` if dependencies are not yet installed.
+
+##### Frontend Tests (132 Vitest Tests)
+
+Run directly from the **repository root**:
 ```bash
-# Option 1: Run directly from project root
-npm --prefix frontend test
-
-# Option 2: Run inside frontend directory
-cd frontend
 npm test
-
-# Run frontend tests in interactive watch / developer mode
-npm test -- --watch
-
-# Validate frontend production build (TypeScript strict check + Vite bundler)
-npm run build
-cd ..
 ```
 
-##### Backend Test Command (Pytest)
+*Or run targeting the frontend directly:*
 ```bash
-# Run all 1,006 backend tests from repository root (quiet mode)
-pytest backend/tests -q
+npm --prefix frontend test
+```
 
-# Run all backend tests with verbose output
+*Or from inside the `frontend` folder:*
+```bash
+cd frontend && npm test
+```
+
+##### Frontend Production Build Check (TypeScript + Vite)
+```bash
+npm run build
+```
+
+##### Backend Tests (1,006 Pytest Tests)
+
+Run from the **repository root**:
+```bash
+pytest backend/tests -q
+```
+
+*Or with verbose output:*
+```bash
 python -m pytest backend/tests/ -v
 ```
 
 ##### Full Master Release Gates Verification
 ```bash
-# Execute all mandatory release gates (G1, G2, G3, G8, G11, G15, G16, G17)
 python scripts/run_release_gates.py
 ```
 
@@ -815,20 +825,29 @@ pytest backend/tests/test_scientific_certification.py -v
 
 Veyra uses **Vitest** for high-performance React component, contract parity, and telemetry verification.
 
+Run all 132 frontend tests from the **repository root**:
 ```bash
-# Run all 132 frontend vitest tests (from project root)
-npm --prefix frontend test
-
-# OR run directly from inside frontend directory
-cd frontend
 npm test
+```
 
-# Run frontend tests in interactive watch mode
-npm test -- --watch
+*Or targeting the frontend directory directly:*
+```bash
+npm --prefix frontend test
+```
 
-# Validate frontend production build (TypeScript strict check + Vite bundler)
+*Or from inside the `frontend` folder:*
+```bash
+cd frontend && npm test
+```
+
+Run tests in developer watch mode:
+```bash
+npm --prefix frontend test -- --watch
+```
+
+Validate frontend production build (TypeScript strict check + Vite bundler):
+```bash
 npm run build
-cd ..
 ```
 
 ### 14.5 Release Gate & Clean-Clone Verification
