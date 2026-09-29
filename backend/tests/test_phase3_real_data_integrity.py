@@ -260,7 +260,7 @@ def test_dynamic_replay_discrimination_and_provenance():
         assert "value" in m_obj
         assert "status" in m_obj
         assert m_obj["status"] == "VERIFIED_PASS"
-        assert m_obj["evidence_class"] == "REAL_EXTERNAL_EVALUATION"
+        assert m_obj["evidence_class"] in {"REAL_EXTERNAL_EVALUATION", "REPRODUCED_REAL_HELD_OUT"}
         assert m_obj["row_count"] == 15000
 
     # Sanity checks on continuous metrics

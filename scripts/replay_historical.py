@@ -487,11 +487,14 @@ def evaluate_predictions(
                 "dataset_version": dataset_version,
             }
 
-    # Row-level dynamic abstention based on dynamic OOD anomaly threshold
+    # Row-level dynamic abstention based on dynamic OOD anomaly threshold or predictive uncertainty
     abstain_mask = (ood_scores >= 0.40)
+    has_ood_variance = (np.max(ood_scores) > np.min(ood_scores))
+    risk_metric = ood_scores if has_ood_variance else (y_prob * (1.0 - y_prob))
+
     if np.sum(abstain_mask) == 0 or np.sum(abstain_mask) == n_samples:
         n_abstain = max(1, int(n_samples * 0.05))
-        top_indices = np.argsort(ood_scores)[-n_abstain:]
+        top_indices = np.argsort(risk_metric)[-n_abstain:]
         abstain_mask = np.zeros(n_samples, dtype=bool)
         abstain_mask[top_indices] = True
 
@@ -529,8 +532,8 @@ def evaluate_predictions(
     for cov_target in coverage_steps:
         pct_to_keep = cov_target / 100.0
         n_keep = max(1, int(n_samples * pct_to_keep))
-        # Keep samples with lowest OOD scores
-        keep_indices = np.argsort(ood_scores)[:n_keep]
+        # Keep samples with lowest risk scores
+        keep_indices = np.argsort(risk_metric)[:n_keep]
         sub_t, sub_p = y_true[keep_indices], y_prob[keep_indices]
         sub_br = float(np.mean((sub_p - sub_t) ** 2))
         risk_coverage_curve.append({

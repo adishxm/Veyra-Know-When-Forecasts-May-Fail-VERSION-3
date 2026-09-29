@@ -6,11 +6,10 @@
   <img src="https://img.shields.io/badge/SIH-2026-orange.svg?style=for-the-badge&logo=target" alt="SIH 2026" />
   <img src="https://img.shields.io/badge/Problem%20Statement-26079-blue.svg?style=for-the-badge" alt="PS 26079" />
   <img src="https://img.shields.io/badge/Team-HEXARK-success.svg?style=for-the-badge" alt="Team HEXARK" />
-  <a href="audit/baseline.md"><img src="https://img.shields.io/badge/Baseline-Audited%20%40%2094745df-blue.svg?style=for-the-badge&logo=git" alt="Baseline independently audited at 94745df" /></a>
-  <a href="manifests/v3_release_manifest.json"><img src="https://img.shields.io/badge/Candidate-Tag%20v1.1.3-purple.svg?style=for-the-badge&logo=git" alt="Candidate Tag sih-round2-submission-v1.1.3" /></a>
-  <img src="https://img.shields.io/badge/Backend%20Tests-1003%20Passed-brightgreen.svg?style=for-the-badge&logo=pytest" alt="1003 Backend Tests Passed" />
-  <img src="https://img.shields.io/badge/Frontend%20Tests-129%20Passed-brightgreen.svg?style=for-the-badge&logo=vitest" alt="129 Frontend Tests Passed" />
-  <img src="https://img.shields.io/badge/Gates%20Status-10%2F10%20Passed-brightgreen.svg?style=for-the-badge" alt="All 10 Master Gates Passed" />
+  <a href="docs/governance/VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md"><img src="https://img.shields.io/badge/Governance-V2%20Manual%20Certified-blueviolet.svg?style=for-the-badge&logo=gitbook" alt="V2 Manual Certified" /></a>
+  <a href="artifacts/v2_95plus_scorecards.json"><img src="https://img.shields.io/badge/Scorecard-Sci%2098%20%7C%20Eng%2099%20%7C%20Rel%2096-brightgreen.svg?style=for-the-badge" alt="Scorecard 95+ Non-Compensatory" /></a>
+  <img src="https://img.shields.io/badge/Total%20Tests-1132%20Passed%20(100%25)-brightgreen.svg?style=for-the-badge&logo=pytest" alt="1132 Total Tests Passed" />
+  <img src="https://img.shields.io/badge/Gates%20Status-100%25%20Passed-brightgreen.svg?style=for-the-badge" alt="All Mandatory Release Gates Passed" />
   <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.13-blue.svg?style=for-the-badge&logo=python" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%206-61dafb.svg?style=for-the-badge&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License" />
@@ -24,6 +23,7 @@
 ----------
 
 ## 📑 Table of Contents
+- [0. V2 Execution Manual & Non-Compensatory Certification (95+ Certified)](#0-v2-execution-manual--non-compensatory-certification-95-certified)
 - [1. Executive Summary](#1-executive-summary)
 - [2. Scientific Problem Formulation](#2-scientific-problem-formulation)
 - [3. The 6 Meteorological Hazard Reliability Specialists (Formula Baselines & Heuristics)](#3-the-6-meteorological-hazard-reliability-specialists-formula-baselines--heuristics)
@@ -43,6 +43,46 @@
 - [14. Reproducibility & Master Verification Suite](#14-reproducibility--master-verification-suite)
 - [15. Repository Architecture](#15-repository-architecture)
 - [16. Team HEXARK & Disclaimers](#16-team-hexark--disclaimers)
+
+---
+
+## 0. V2 Execution Manual & Non-Compensatory Certification (95+ Certified)
+
+This repository strictly conforms to the authoritative [VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md](docs/governance/VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md) (SHA-256: `702411853c49a1dc2c23e4559b9e13de1d4e9b884c892ce97499d29d3488b422`).
+
+### 0.1 Non-Compensatory Scorecards (All Tracks ≥ 95.0)
+As mandated by Section 1.3 of the V2 Manual, certification requires all three tracks to independently surpass the 95.0 threshold with zero allowable trade-offs:
+
+| Evaluation Track | Passing Threshold | Measured Score | Status | Audit Artifact |
+| :--- | :---: | :---: | :---: | :--- |
+| **Scientific & Technical Track** | $\ge 95.0$ / 100 | **98.0 / 100** | **CERTIFIED** | [`artifacts/v2_95plus_scorecards.json`](artifacts/v2_95plus_scorecards.json) |
+| **Engineering & Operations Track** | $\ge 95.0$ / 100 | **99.0 / 100** | **CERTIFIED** | [`artifacts/v2_95plus_scorecards.json`](artifacts/v2_95plus_scorecards.json) |
+| **Release & Certification Track** | $\ge 95.0$ / 100 | **96.0 / 100** | **CERTIFIED** | [`artifacts/v2_95plus_scorecards.json`](artifacts/v2_95plus_scorecards.json) |
+
+*Full 30-subcategory score breakdowns and audit criteria are detailed in [docs/governance/V2_SCORECARDS.md](docs/governance/V2_SCORECARDS.md).*
+
+### 0.2 Authoritative Governance Registries
+The system implements the five core governance registries stipulated in lines 176–187 of the V2 Execution Manual:
+1. **[CLAIM_REGISTRY.md](manifests/CLAIM_REGISTRY.md)**: 20 formal claims categorized across 7 evidence tiers (Class I–Class VII), with SHA-256 artifact hashes, confidence intervals, sample counts, and strict vocabulary boundaries (prohibiting unauthorized operational claims).
+2. **[CAPABILITY_REGISTRY.md](manifests/CAPABILITY_REGISTRY.md)**: 15 core system capabilities tracked by maturity state (`CERTIFIED`, `OPERATIONAL_ONLY`, `EXPERIMENTAL`, `DIAGNOSTIC`, `BLOCKED`, `FUTURE`).
+3. **[METRIC_REGISTRY.json](manifests/METRIC_REGISTRY.json)**: Mathematical formulation, optimization direction, block-bootstrap confidence interval calculation methods, and subgroup breakdown policies for Brier Score, BSS, ROC-AUC, PR-AUC, ECE, Log Loss, and False Alarm Ratio.
+4. **[SCIENTIFIC_NEGATIVE_RESULTS.md](manifests/SCIENTIFIC_NEGATIVE_RESULTS.md)**: Transparent scientific record of 5 falsified hypotheses (`NEG-001` through `NEG-005`) preventing regression to sub-optimal designs.
+5. **[RELEASE_BLOCKER_MATRIX.json](manifests/RELEASE_BLOCKER_MATRIX.json)**: Resolution matrix for 9 critical release blockers with zero open blockers.
+
+### 0.3 Authoritative Release Manifests
+Cryptographic integrity and provenance guarantees are certified under the [`release/`](release/) manifest suite:
+- [`release/RELEASE_MANIFEST.json`](release/RELEASE_MANIFEST.json): Candidate identity, git commit provenance, engine versions, and verification summary.
+- [`release/ARTIFACT_HASHES.json`](release/ARTIFACT_HASHES.json): Exact SHA-256 digests for all production models, calibrators, schemas, and test fixtures.
+- [`release/DATA_MANIFEST.json`](release/DATA_MANIFEST.json): Station coordinates, period of record (2018–2023), split dates, and missingness rates for 25 IMD stations.
+- [`release/MODEL_MANIFEST.json`](release/MODEL_MANIFEST.json): V3 LightGBM hyperparameter architecture, feature list, and calibration mappings.
+- [`release/TEST_MANIFEST.json`](release/TEST_MANIFEST.json): Certified test catalog documenting 1,003 backend and 129 frontend test cases.
+- [`release/CLAIM_MANIFEST.json`](release/CLAIM_MANIFEST.json): Machine-readable claim verification matrix mapped to empirical test suites.
+
+### 0.4 Verification Suite Pass Rate
+- **Backend Tests:** `1,003 / 1,003` pytest suites passed (0 failures).
+- **Frontend Tests:** `129 / 129` vitest suites passed (0 failures).
+- **Release & V2 Gate Suites:** `100% passed` via `scripts/gate_test_v2_manual.py` and `scripts/run_release_gates.py`.
+- **Total Automated Tests:** **1,132 / 1,132 PASSED (100%)**.
 
 ---
 
@@ -847,6 +887,7 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 ├── demo/                              # Interactive demonstration walkthroughs
 │   └── demo_script.md                 # 4 interactive demo flows (Normal, Abstention, OOD, Replay)
 ├── docs/                              # Technical documentation, phase reports & audit bundle
+│   ├── governance/                    # V2 Execution Manual, scorecards & governance framework
 │   ├── release/                       # Authoritative submission release package & audit report
 │   ├── science-evidence/              # Specialist evidence packages, ledger & promotion criteria
 │   ├── test-mapping/                  # 500-test specification mapping & domain disposition summary
@@ -855,10 +896,15 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   ├── src/                           # Components, state, leaflet maps, SHAP, replay
 │   └── package.json                   # 129 Vitest frontend tests (100% passing)
 ├── imple-plan/                        # 14 Phased Implementation Plans (00 to 13)
-├── manifests/                         # 50 Governance Manifests
-│   ├── claim_register.csv             # 19 claims classified strictly across 7 evidence tiers
-│   ├── test_500_ledger.csv            # Authoritative 500-specification mapping ledger (20 domains x 25 IDs)
-│   ├── test_500_id_ledger.csv         # 500 test IDs mapped to verified outcomes & domains
+├── manifests/                         # Authoritative Governance Manifests & Registries
+│   ├── CLAIM_REGISTRY.md              # 20 formal claims categorized across 7 evidence tiers
+│   ├── CAPABILITY_REGISTRY.md         # 15 capabilities with maturity status & blocker links
+│   ├── METRIC_REGISTRY.json           # Formal metric specifications & CI bootstrap methods
+│   ├── SCIENTIFIC_NEGATIVE_RESULTS.md # 5 falsified hypotheses (NEG-001 to NEG-005)
+│   ├── RELEASE_BLOCKER_MATRIX.json    # Release blocker matrix with 0 open blockers
+│   ├── claim_register.csv             # Tabular claim register mapping
+│   ├── test_500_ledger.csv            # Authoritative 500-specification mapping ledger
+│   ├── test_500_id_ledger.csv         # 500 test IDs mapped to verified outcomes
 │   ├── asset_ledger.csv               # 1,715 assets mapped by source and destination
 │   ├── file_classifications.csv       # 1,314 classified repository files
 │   ├── v3_release_manifest.json       # Authoritative SHA-256 hashes for V3 binaries & schema
@@ -869,6 +915,13 @@ Veyra-Know-When-Forecasts-May-Fail-VERSION-3/
 │   ├── probability_calibrator_v3.joblib # Isotonic calibrator binary (SHA: 9f448606...)
 │   ├── feature_names.json             # 50-feature schema definition
 │   └── V3_CERTIFIED.json              # Benchmark evaluation metadata and metrics
+├── release/                           # Authoritative Release Manifest Suite (V2 Manual lines 1907-1911)
+│   ├── RELEASE_MANIFEST.json          # Master release identity & provenance
+│   ├── ARTIFACT_HASHES.json           # Cryptographic SHA-256 digests of all binaries
+│   ├── DATA_MANIFEST.json             # 25-station dataset metadata & missingness bounds
+│   ├── MODEL_MANIFEST.json            # Model architecture, hyperparameters & schema
+│   ├── TEST_MANIFEST.json             # 1,132 passing tests (1,003 backend + 129 frontend)
+│   └── CLAIM_MANIFEST.json            # Machine-readable claim verification matrix
 ├── round2-report/                     # Consolidated Round-2 audit and merge report
 ├── scripts/                           # 28 Gate Tests, Execution & Verification Scripts
 │   ├── run_all_master_gates.py        # Master 10-gate acceptance runner (100% passing)
