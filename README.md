@@ -662,9 +662,20 @@ launch.bat
 
 #### 2. Step-by-Step Environment Setup
 
+> [!TIP]
+> **Windows Long Path Support:**  
+> If cloning on Windows, enable long path support so deeply nested directories never hit the 260-character limit:
+> ```bash
+> git config --global core.longpaths true
+> ```
+> Or pass the config flag directly to the clone command:
+> ```bash
+> git clone -c core.longpaths=true https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-3.git
+> ```
+
 ```bash
-# 1. Clone the repository
-git clone https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-3.git
+# 1. Clone the repository (enable longpaths on Windows)
+git clone -c core.longpaths=true https://github.com/adishxm/Veyra-Know-When-Forecasts-May-Fail-VERSION-3.git
 cd Veyra-Know-When-Forecasts-May-Fail-VERSION-3
 
 # 2. Create and activate a Python virtual environment (recommended)
