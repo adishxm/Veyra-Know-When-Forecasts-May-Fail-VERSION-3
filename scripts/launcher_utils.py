@@ -18,7 +18,16 @@ def is_port_available(port: int) -> bool:
     """Returns True if the port is free to bind."""
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.settimeout(0.5)
+            if s.connect_ex(('127.0.0.1', port)) == 0:
+                return False  # Actively listening
+    except OSError:
+        pass
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if sys.platform != "win32":
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind(('127.0.0.1', port))
             return True
     except OSError:

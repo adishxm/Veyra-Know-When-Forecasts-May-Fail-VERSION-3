@@ -92,7 +92,7 @@ def valid_feature_result(valid_26_features_dict: dict[str, float]) -> FeatureRes
 @pytest.fixture
 def model_service() -> ModelIntegrationService:
     """Provide a ModelIntegrationService instance loaded with the active model."""
-    return ModelIntegrationService()
+    return ModelIntegrationService(active_model_key="builder2_gbm")
 
 
 @pytest.fixture

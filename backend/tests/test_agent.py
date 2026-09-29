@@ -75,10 +75,10 @@ def test_agent_full_pipeline_mock_injection():
         feature_service=MockFeatureService(),
         model_service=MockModelService(),
     )
-    request = PredictionRequest(location="Tokyo", target_date="2026-09-01")
+    request = PredictionRequest(location="Kolkata", target_date="2026-09-01")
     response = agent.analyze(request)
 
-    assert response.location == "Tokyo"
+    assert response.location == "Kolkata"
     assert response.bust_probability == 0.35
     assert response.risk_level == RiskLevel.MEDIUM
     assert response.trust_state == TrustState.HIGH_CONFIDENCE

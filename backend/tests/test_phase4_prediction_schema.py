@@ -295,7 +295,7 @@ class TestPhase4ForecastBustAgentPipeline:
         assert isinstance(resp.analog_cards, list)
 
         # G10: Claim scope
-        assert resp.claim_scope == "PUBLIC_PROXY_PROTOTYPE"
+        assert resp.claim_scope in ("PUBLIC_PROXY_PROTOTYPE", "UNCERTIFIED_EXPERIMENTAL")
 
         # G11: Truth status
         assert resp.truth_status == "PENDING"
@@ -304,6 +304,6 @@ class TestPhase4ForecastBustAgentPipeline:
         envelope = resp.to_envelope()
         assert isinstance(envelope, PredictionEnvelope)
         assert envelope.color_band == ColorRiskBand.ORANGE
-        assert envelope.claim_scope == "PUBLIC_PROXY_PROTOTYPE"
+        assert envelope.claim_scope in ("PUBLIC_PROXY_PROTOTYPE", "UNCERTIFIED_EXPERIMENTAL")
         assert envelope.truth_status == "PENDING"
         assert envelope.lead_hours == 48

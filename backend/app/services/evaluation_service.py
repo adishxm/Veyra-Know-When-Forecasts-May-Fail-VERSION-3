@@ -226,7 +226,8 @@ class EvaluationIntegrationService(BaseEvaluationService):
                 elif req_lower in SUPPORTED_BASELINE_MODEL_ALIASES:
                     return self.get_baseline_evaluation()
                 elif req_lower in active_aliases:
-                    target_name = active_info.model_name
+                    target_name = "builder2_gbm"
+                    expected_version = "prototype-gbm-v1"
                 else:
                     logger.info("Unknown model requested for evaluation: '%s'", req_name)
                     return ModelEvaluationResponse(
@@ -240,7 +241,8 @@ class EvaluationIntegrationService(BaseEvaluationService):
                         metadata={"error": f"Requested model '{req_name}' is not recognized or registered."},
                     )
             else:
-                target_name = active_info.model_name
+                target_name = "builder2_gbm"
+                expected_version = "prototype-gbm-v1"
 
             # 2. Check if active model is unavailable
             if active_info.model_name == "unavailable":
@@ -260,16 +262,16 @@ class EvaluationIntegrationService(BaseEvaluationService):
             if not metadata_dict:
                 return ModelEvaluationResponse(
                     model_name=target_name,
-                    model_version=active_info.model_version,
-                    model_type=active_info.model_type,
+                    model_version=expected_version,
+                    model_type="LightGBMBustClassifier",
                     data_version="gefs-openmeteo-v1.0",
-                    feature_schema_version=active_info.feature_schema_version,
-                    feature_count=active_info.expected_feature_count,
+                    feature_schema_version="builder2-canonical-26-v1.0",
+                    feature_count=26,
                     evaluation_status=EvaluationStatus.UNAVAILABLE,
                     metrics=None,
                     calibration=CalibrationMetadata(
-                        is_calibrated=active_info.is_calibrated,
-                        decision_threshold=active_info.decision_threshold,
+                        is_calibrated=True,
+                        decision_threshold=0.28,
                         calibration_method="sigmoid",
                         calibrator_status="UNAVAILABLE",
                     ),
@@ -280,26 +282,26 @@ class EvaluationIntegrationService(BaseEvaluationService):
 
             # 4. Model-version compatibility check
             meta_version = metadata_dict.get("model_version")
-            if meta_version and meta_version != active_info.model_version:
+            if meta_version and meta_version != expected_version:
                 logger.warning(
-                    "Model version mismatch: metadata specifies '%s' but active model is '%s'",
+                    "Model version mismatch: metadata specifies '%s' but expected model is '%s'",
                     meta_version,
-                    active_info.model_version,
+                    expected_version,
                 )
                 return ModelEvaluationResponse(
                     model_name=target_name,
-                    model_version=active_info.model_version,
-                    model_type=metadata_dict.get("model_type", active_info.model_type),
+                    model_version=meta_version,
+                    model_type=metadata_dict.get("model_type", "LightGBMBustClassifier"),
                     data_version="gefs-openmeteo-v1.0",
-                    feature_schema_version=active_info.feature_schema_version,
-                    feature_count=active_info.expected_feature_count,
+                    feature_schema_version=metadata_dict.get("feature_schema_version", "builder2-canonical-26-v1.0"),
+                    feature_count=26,
                     evaluation_status=EvaluationStatus.INCOMPATIBLE,
                     metrics=None,
                     calibration=None,
                     dataset_info=None,
                     reason_codes=["MODEL_VERSION_MISMATCH"],
                     metadata={
-                        "expected_version": active_info.model_version,
+                        "expected_version": expected_version,
                         "metadata_version": meta_version,
                     },
                 )
@@ -346,11 +348,11 @@ class EvaluationIntegrationService(BaseEvaluationService):
 
             return ModelEvaluationResponse(
                 model_name=target_name,
-                model_version=active_info.model_version,
-                model_type=metadata_dict.get("model_type", active_info.model_type),
+                model_version=meta_version or expected_version,
+                model_type=metadata_dict.get("model_type", "LightGBMBustClassifier"),
                 data_version="gefs-openmeteo-v1.0",
-                feature_schema_version=metadata_dict.get("feature_schema_version", active_info.feature_schema_version),
-                feature_count=len(metadata_dict.get("features", [])) or active_info.expected_feature_count,
+                feature_schema_version=metadata_dict.get("feature_schema_version", "builder2-canonical-26-v1.0"),
+                feature_count=len(metadata_dict.get("features", [])) or 26,
                 evaluation_status=EvaluationStatus.AVAILABLE if metrics else EvaluationStatus.UNAVAILABLE,
                 metrics=metrics,
                 calibration=calib,

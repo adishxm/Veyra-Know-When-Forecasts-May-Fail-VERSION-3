@@ -117,10 +117,10 @@ def test_end_to_end_agent_live_prediction():
         safety_evaluator=SafetyEvaluator(),
     )
 
-    req = PredictionRequest(location="London")
+    req = PredictionRequest(location="Kolkata")
     response = agent.analyze(req)
 
-    assert response.location == "London"
+    assert response.location == "Kolkata"
     assert response.bust_probability is not None
     assert 0.0 <= response.bust_probability <= 1.0
     assert response.risk_level in [RiskLevel.LOW, RiskLevel.MEDIUM, RiskLevel.HIGH, RiskLevel.CRITICAL]

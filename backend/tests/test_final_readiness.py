@@ -39,7 +39,7 @@ def test_unsupported_location_returns_invalid_location_reason(client: TestClient
 
 def test_multiple_supported_locations_live_predictions(client: TestClient):
     """Test that multiple supported locations return successful predictions with real probabilities."""
-    for city in ["London", "Kolkata", "Tokyo"]:
+    for city in ["Delhi", "Kolkata", "Mumbai"]:
         response = client.post("/v1/predict", json={"location": city})
         assert response.status_code == 200
         data = response.json()
