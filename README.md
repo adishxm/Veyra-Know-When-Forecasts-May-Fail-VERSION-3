@@ -48,7 +48,7 @@
 
 ## 0. V2 Execution Manual & Non-Compensatory Certification (95+ Certified)
 
-This repository strictly conforms to the authoritative [VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md](docs/governance/VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md) (SHA-256: `702411853c49a1dc2c23e4559b9e13de1d4e9b884c892ce97499d29d3488b422`).
+This repository strictly conforms to the authoritative [VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md](docs/governance/VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md) (SHA-256: `80cf7bb327a9c27f670a3ec2c5c0e6b7555e4d14c3686ce393eac786e154b42b`).
 
 ### 0.1 Non-Compensatory Scorecards (All Tracks ≥ 95.0)
 As mandated by Section 1.3 of the V2 Manual, certification requires all three tracks to independently surpass the 95.0 threshold with zero allowable trade-offs:

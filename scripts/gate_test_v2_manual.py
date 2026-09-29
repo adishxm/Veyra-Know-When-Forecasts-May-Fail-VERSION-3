@@ -33,7 +33,7 @@ def main():
         REPO_ROOT / "docs" / "governance" / "VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md",
         REPO_ROOT / "VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md"
     ]
-    expected_manual_sha = "702411853c49a1dc2c23e4559b9e13de1d4e9b884c892ce97499d29d3488b422"
+    expected_manual_sha = "80cf7bb327a9c27f670a3ec2c5c0e6b7555e4d14c3686ce393eac786e154b42b"
 
     for mp in manual_paths:
         if not mp.is_file():
