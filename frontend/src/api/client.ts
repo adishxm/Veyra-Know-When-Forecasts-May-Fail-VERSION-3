@@ -29,15 +29,19 @@ import {
 } from './types';
 
 // Resolve base API URL:
-// In browser runtime, use relative URL (empty string '') so requests automatically target
-// whichever host/port served the application (e.g. localhost:8100, localhost:8000).
-// In non-browser (e.g. Node tests), fallback to VITE_API_BASE_URL or http://127.0.0.1:8000.
+// In browser runtime, if an explicit VITE_API_URL or VITE_API_BASE_URL is set (e.g. Render backend in production),
+// use it. Otherwise, use relative URL (empty string '') so requests automatically target
+// whichever host/port served the application (e.g. localhost:8100, localhost:8000, Vite proxy).
+// In non-browser (e.g. Node tests), fallback to configured URL or http://127.0.0.1:8000.
+const configuredApiUrl =
+  (typeof import.meta !== 'undefined' && import.meta.env
+    ? (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '')
+    : '') as string;
+
 const DEFAULT_BASE_URL =
-  typeof window !== 'undefined'
-    ? (import.meta.env?.VITE_API_BASE_URL && import.meta.env.DEV
-        ? import.meta.env.VITE_API_BASE_URL
-        : '')
-    : (import.meta.env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000');
+  configuredApiUrl ||
+  (typeof window !== 'undefined' ? '' : 'http://127.0.0.1:8000');
+
 
 
 export class VeyraApiClient {
