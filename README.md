@@ -21,7 +21,7 @@
   <i>Engineered for the Ministry of Earth Sciences (MoES) & National Centre for Medium Range Weather Forecasting (NCMRWF)</i>
 </p>
 
----
+----------
 
 ## 📑 Table of Contents
 - [1. Executive Summary](#1-executive-summary)
@@ -63,6 +63,7 @@ It does **not** replace physical fluid dynamics models or issue public weather f
 ---
 
 ## 2. Scientific Problem Formulation
+
 
 ### 2.1 Formal Definition of a Forecast Bust
 Let $\hat{Y}_{t, h}$ denote an operational NWP ensemble mean forecast initialized at cycle $t$ for lead time $h \in [24, 168]\text{ hours}$, and let $Y_{t+h}$ denote the verifying ground truth (e.g., IMD AWS/ARG network, Doppler Weather Radar, or ERA5 reanalysis).
