@@ -53,6 +53,7 @@ def create_application() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"] if allow_all else cors_origins,
+        allow_origin_regex=None if allow_all else r"https://.*\.github\.io",
         allow_credentials=not allow_all,
         allow_methods=["*"],
         allow_headers=["*"],

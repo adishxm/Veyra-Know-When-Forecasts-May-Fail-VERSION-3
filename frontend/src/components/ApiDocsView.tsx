@@ -22,7 +22,7 @@ export const ApiDocsView: React.FC = () => {
           <div>
             <h2 className="api-docs-title">Forecast-Bust Sentinel API — Swagger UI</h2>
             <div className="api-docs-subtitle">
-              OpenAPI 3.1 Specification &bull; http://127.0.0.1:8000/docs
+              OpenAPI 3.1 Specification &bull; {DOCS_URL}
             </div>
           </div>
         </div>

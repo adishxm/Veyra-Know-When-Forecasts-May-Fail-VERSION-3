@@ -111,6 +111,23 @@ def test_cors_headers_with_allowed_origin():
         assert disallowed.headers.get("access-control-allow-origin") is None
 
 
+def test_cors_allows_github_pages_origin():
+    """Verify GitHub Pages frontend origin is permitted by default CORS policy."""
+    test_app = create_application()
+    client = TestClient(test_app)
+
+    preflight = client.options(
+        "/v1/health",
+        headers={
+            "Origin": "https://adishxm.github.io",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert preflight.status_code == 200
+    assert preflight.headers.get("access-control-allow-origin") == "https://adishxm.github.io"
+
+
+
 def test_cors_wildcard_mode_disables_credentials():
     """Verify wildcard CORS mode does not return allow_credentials=true (Fetch standard compliance)."""
     with patch.object(settings, "CORS_ALLOW_ALL", True):
