@@ -39,10 +39,31 @@ def get_current_commit() -> str:
             ["git", "rev-parse", "HEAD"],
             cwd=str(REPO_ROOT),
             text=True,
+            stderr=subprocess.DEVNULL,
         ).strip()
-        return res
-    except Exception as e:
-        raise RuntimeError(f"Failed to obtain current commit SHA dynamically from git: {e}")
+        if len(res) == 40:
+            return res
+    except Exception:
+        pass
+
+    # Standalone archive / zip distribution fallback (when .git is absent)
+    cand_sha_file = REPO_ROOT / "manifests" / "candidate_sha.txt"
+    if cand_sha_file.is_file():
+        cand = cand_sha_file.read_text(encoding="utf-8").strip()
+        if len(cand) == 40:
+            return cand
+
+    rel_man_file = REPO_ROOT / "backend" / "app" / "core" / "release_manifest.json"
+    if rel_man_file.is_file():
+        try:
+            rel_data = json.loads(rel_man_file.read_text(encoding="utf-8"))
+            sha = rel_data.get("git_provenance", {}).get("candidate_commit_sha") or rel_data.get("git_provenance", {}).get("base_commit_sha")
+            if sha and len(sha) == 40:
+                return sha
+        except Exception:
+            pass
+
+    raise RuntimeError("Failed to obtain current commit SHA dynamically from git or archive manifest.")
 
 
 def verify_phase3_evidence(strict: bool = True) -> Dict[str, Any]:
@@ -527,17 +548,24 @@ def build_authoritative_scorecard(
         raise ValueError(f"Scorecard evaluation commit must be a 40-character hex SHA: got {eval_commit}")
 
     if strict:
-        try:
-            subprocess.check_call(
-                ["git", "cat-file", "-e", f"{eval_commit}^{{commit}}"],
-                cwd=str(REPO_ROOT),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except Exception as e:
-            raise ValueError(
-                f"Scorecard evaluation commit '{eval_commit}' does not exist in git history: {e}"
-            )
+        if (REPO_ROOT / ".git").is_dir():
+            try:
+                subprocess.check_call(
+                    ["git", "cat-file", "-e", f"{eval_commit}^{{commit}}"],
+                    cwd=str(REPO_ROOT),
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except Exception as e:
+                raise ValueError(
+                    f"Scorecard evaluation commit '{eval_commit}' does not exist in git history: {e}"
+                )
+        else:
+            # Standalone archive mode (.git directory absent): verify against authoritative candidate commit SHA
+            if eval_commit != current_commit:
+                raise ValueError(
+                    f"Scorecard evaluation commit '{eval_commit}' does not exist in git history (archive mode mismatch with {current_commit})"
+                )
 
     # Decision log records reasoning for each category
     decision_log = {
