@@ -43,6 +43,7 @@
 - [14. Reproducibility & Master Verification Suite](#14-reproducibility--master-verification-suite)
 - [15. Repository Architecture](#15-repository-architecture)
 - [16. Team HEXARK & Disclaimers](#16-team-hexark--disclaimers)
+- [17. Contributing & Development](#17-contributing--development)
 
 ---
 
@@ -1022,6 +1023,23 @@ Developed for the **Smart India Hackathon 2026** under the theme **Disaster Mana
 ### Operational Disclaimer
 > [!IMPORTANT]
 > **Veyra Sentinel is an advisory diagnostic tool designed to assist human meteorologists.** It does not replace certified national meteorological agencies (e.g., India Meteorological Department - IMD) in issuing official forecasts, watches, or warnings. All operational disaster mitigation decisions must be authorized by certified meteorologists and disaster management authorities in accordance with standard operating procedures.
+
+---
+
+## 17. Contributing & Development
+
+We welcome contributions to Veyra Sentinel! To ensure your contributions are of high value and align with our strict scientific and engineering standards, please adhere to the following guidelines:
+
+1. **Governance & Certification:** All new features or models must pass the non-compensatory 95+ Scorecard certification. Before submitting a PR, ensure you have read the [V2 Execution Manual](docs/governance/VEYRA_COMPLETE_PHASE_BY_PHASE_EXECUTION_MANUAL_V2.md).
+2. **Master Integration Gates:** Your code must pass all 10 acceptance gates. Run `python scripts/run_all_master_gates.py` locally and ensure a 100% pass rate.
+3. **Automated Testing:** We mandate 100% test pass rates. Run `pytest backend/tests -q` and `npm test` before committing.
+4. **Issue Tracking:** For major architectural changes or new hazard specialists, please open an issue first to discuss your proposed formula baselines or empirical models.
+
+### Steps to Contribute:
+1. Fork the repository and create a new branch (`git checkout -b feature/your-feature-name`).
+2. Make your modifications, ensuring strict adherence to the [Safe Abstention Policy](#8-defensive-engineering--safe-abstention-taxonomy).
+3. Commit your changes with clear, descriptive messages.
+4. Submit a Pull Request targeting the `main` branch. Include relevant test outputs and artifact hashes.
 
 ---
 
